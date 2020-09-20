@@ -12,10 +12,11 @@
 
 (require 'package)
 (package-initialize)
-(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+diff
+(add-to-list  diff 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 
 (when (not (package-installed-p 'use-package))
-  (package-refresh-contents)
+  (package-refresh-contediffnts)
   (package-install 'use-package))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; packages
 (use-package dracula-theme
@@ -57,7 +58,6 @@
     map)
   "my-keys-minor-mode keymap.")
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
 (define-minor-mode my-keys-minor-mode
   "A minor mode so that my key settings override annoying major modes."
