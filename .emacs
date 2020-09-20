@@ -1,6 +1,7 @@
-;; Do not show the startup screen.
+;; Do not show the startup screen and disable bells
 (setq inhibit-startup-message t)
-
+(setq visible-bell nil)
+(setq ring-bell-function 'ignore)
 ;; Disable tool bar, menu bar, scroll bar.
 (tool-bar-mode -1)
 (menu-bar-mode -1)
@@ -16,7 +17,7 @@
 (when (not (package-installed-p 'use-package))
   (package-refresh-contents)
   (package-install 'use-package))
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; packages
 (use-package dracula-theme
   :ensure t
   :config
@@ -36,8 +37,41 @@
 (use-package magit
   :ensure t
   :bind ("C-x g" . magit-status))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; do the instalation
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; functions
+;; opens a shell in other window
+(defun shell-other-window ()
+  "Open a `shell' in a new window."
+  (interactive)
+  (let ((buf (shell)))
+    (switch-to-buffer (other-buffer buf))
+    (switch-to-buffer-other-window buf)))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; vars
+;; my minor mode
+(defvar my-keys-minor-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-t t") 'shell-other-window)
+    map)
+  "my-keys-minor-mode keymap.")
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+(define-minor-mode my-keys-minor-mode
+  "A minor mode so that my key settings override annoying major modes."
+  :init-value t
+  :lighter " my-keys")
+
+(my-keys-minor-mode 1)
+
+
+;; hooks
+(add-hook 'after-init-hook 'global-company-mode)
+
+
+;; do the installation
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -51,26 +85,3 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
-
-
-;; opens a shell in other window
-(defun shell-other-window ()
-  "Open a `shell' in a new window."
-  (interactive)
-  (let ((buf (shell)))
-    (switch-to-buffer (other-buffer buf))
-    (switch-to-buffer-other-window buf)))
-
-;; my minor mode
-(defvar my-keys-minor-mode-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-t t") 'shell-other-window)
-    map)
-  "my-keys-minor-mode keymap.")
-
-(define-minor-mode my-keys-minor-mode
-  "A minor mode so that my key settings override annoying major modes."
-  :init-value t
-  :lighter " my-keys")
-
-(my-keys-minor-mode 1)
