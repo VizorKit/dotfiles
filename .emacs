@@ -42,7 +42,14 @@
   :ensure t
   :config
   (setq ivy-use-virtual-buffers t
-	ivy-count-format "%d/%d "))
+	ivy-count-format "%d/%d ")
+  (setq ivy-initial-inputs-alist nil)
+  (setq ivy-re-builders-alist
+	'((ivy-switch-buffer . ivy--regex-plus)
+        (t . ivy--regex-fuzzy))))
+
+(use-package flx
+  :ensure t)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; functions
