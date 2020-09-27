@@ -24,14 +24,13 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; packages
 ;; basic theme
-
 (use-package zenburn-theme
   :ensure t
   :config
   (setq zenburn-override-colors-alist
-	'(("zenburn-red" . "#de7a78")
-	  ("zenburn-bg-05" . "#292928")
-	  ("zenburn-bg" . "#3b3837")))
+                '(("zenburn-red" . "#de7a78")
+                  ("zenburn-bg-05" . "#292928")
+                  ("zenburn-bg" . "#3b3837")))
   (load-theme 'zenburn t))
 
 ;; completes most things
@@ -76,6 +75,7 @@
   (setq ivy-re-builders-alist
                 '((ivy-switch-buffer . ivy--regex-plus)
           (t . ivy--regex-fuzzy))))
+
 ;; basic project maneuvering
 (use-package projectile
   :ensure t
@@ -91,64 +91,97 @@
   :ensure t
   :config
   (counsel-projectile-mode t))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; begin ide
+(use-package lsp-mode
+  :ensure t
+  :hook (
+                (java-mode . lsp)
+                (lsp-mode . (lambda ()
+                                       (let ((lsp-keymap-prefix "C-l"))
+                                                (lsp-enable-which-key-integration)))))
+  :init
+  (setq lsp-idle-delay .02
+                lsp-signature-doc-lines 5)
+  :config
+  (define-key lsp-mode-map (kbd "C-l") lsp-command-map)
+  :commands lsp)
+;; completes most with lsp
+(use-package company-lsp
+  :ensure t
+  :config
+  (push 'company-lsp company-backends)
+  (add-hook 'after-init-hook 'global-company-mode))
+
+;; peek capabilities
+(use-package lsp-ui
+  :ensure t
+  :config
+  (define-key lsp-ui-mode-map (kbd "C-l .") 'xref-find-definitions)
+  (define-key lsp-ui-mode-map (kbd "C-l /") 'xref-find-references)
+  :commands lsp-ui-mode)
+
+;; search capabilities
+(use-package lsp-ivy
+  :ensure t
+  :commands lsp-ivy-workspace-symbol)
 
 ;; todo:: configure
 (use-package lsp-treemacs
   :ensure t
   :commands lsp-treemacs-errors-list)
 
-;; todo:: configure
-(use-package flx
-  :ensure t)
-
-(use-package lsp-mode
-  :ensure t
-  :hook ((java-mode . lsp)
-         (lsp-mode . lsp-enable-which-key-integration))
-  :commands lsp)
-
-;; todo:: configure
-(use-package lsp-ui
-  :ensure t
-  :commands lsp-ui-mode)
-
+;; debug mode still need to configure
 (use-package dap-mode
-  :ensure t)
+  :ensure t
+  :after lsp-mode
+  :config
+  (dap-auto-configure-mode))
 
+;; java configuration, set lombok path
 (use-package lsp-java
   :ensure t
   :config
   (add-hook 'java-mode-hook 'lsp)
-  (add-hook 'java-mode-hook 'lsp-java-boot-lens-mode)
- (setq lsp-java-vmargs
+  (setq lsp-java-vmargs
             `("-noverify"
-             "-Xmx1G"
+              "-Xmx1G"
               "-XX:+UseG1GC"
               "-XX:+UseStringDeduplication"
-              ,(concat "-javaagent:" "~/lombok/lombok.jar")
-              ,(concat "-Xbootclasspath/a:" "~/lombok/lombok.jar"))))
+              ,(concat "-javaagent:" "$$LOMBOK_PATH")
+              ,(concat "-Xbootclasspath/a:" "$$LOMBOK_PATH"))))
 
-;; todo:: configure
+;; does some basic error checking/linting
 (use-package flycheck
-  :ensure t)
+  :ensure t
+  :config
+  (define-key flycheck-mode-map flycheck-keymap-prefix nil)
+  (setq flycheck-keymap-prefix (kbd "C-l c"))
+  (define-key flycheck-mode-map flycheck-keymap-prefix flycheck-command-map)
+  (global-flycheck-mode))
 
-;; todo:: configure
+;; snippets
 (use-package yasnippet
   :ensure t
-  :config (yas-global-mode))
+  :config
+  (setq yas-snippet-dirs
+	'("~/.emacs.d/snippets"
+	  "~/.emacs.d/snippets-collection"))
+  (yas-global-mode 1))
+;; todo:: configure
+(use-package hydra
+  :ensure t)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; set keys
 (global-set-key (kbd "C-c k") 'delete-other-windows)
 (global-set-key (kbd "C-c o") 'other-window)
+(global-set-key (kbd "C-c 0") 'delete-window)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; hooks
 (add-hook 'after-init-hook 'global-company-mode)
 (add-hook 'java-mode-hook #'lsp)
-(add-hook 'lsp-mode-hook #'lsp-lens-mode)
-(add-hook 'java-mode-hook #'lsp-java-boot-lens-mode)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -156,7 +189,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(yasnippet flycheck lsp-java dap-mode lsp-ui flx lsp-treemacs counsel-projectile projectile counsel magit which-key company zenburn-theme use-package)))
+   '(lsp-ivy zenburn-theme yasnippet which-key use-package magit lsp-ui lsp-java flycheck flx counsel-projectile company)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
