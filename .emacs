@@ -84,6 +84,7 @@
   (setq projectile-completion-system 'ivy)
   (setq projectile-enable-caching t)
   (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+  (setq projectile-test-cmd #'test-command)
   (projectile-mode))
 
 ;; advanced project maneuvering
@@ -97,6 +98,7 @@
   :ensure t
   :hook (
                 (java-mode . lsp)
+		(c-mode . lsp)
                 (lsp-mode . (lambda ()
                                        (let ((lsp-keymap-prefix "C-l"))
                                                 (lsp-enable-which-key-integration)))))
@@ -106,11 +108,11 @@
   :config
   (define-key lsp-mode-map (kbd "C-l") lsp-command-map)
   :commands lsp)
+
 ;; completes most with lsp
 (use-package company-lsp
   :ensure t
   :config
-  (push 'company-lsp company-backends)
   (add-hook 'after-init-hook 'global-company-mode))
 
 ;; peek capabilities
@@ -173,26 +175,36 @@
   :ensure t)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; functions
+(defun test-command ()
+  "A String representing the test command to run for the given context."
+  (cond
+   ((eq major-mode 'c-mode) "make test")))
+
+(defun toggle-frame-split ()
+    "If the frame is split vertically, split it horizontally or vice versa.
+Assumes that the frame is only split into two."
+    (interactive)
+    (unless (= (length (window-list)) 2) (error "Can only toggle a frame split in two"))
+    (let ((split-vertically-p (window-combined-p)))
+      (delete-window)
+      (if split-vertically-p
+	  (split-window-horizontally)
+	(split-window-vertically))
+      (switch-to-buffer nil)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; set keys
 (global-set-key (kbd "C-c k") 'delete-other-windows)
 (global-set-key (kbd "C-c o") 'other-window)
 (global-set-key (kbd "C-c 0") 'delete-window)
+(global-set-key (kbd "C-c t") 'toggle-frame-split)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; hooks
 (add-hook 'after-init-hook 'global-company-mode)
 (add-hook 'java-mode-hook #'lsp)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   '(lsp-ivy zenburn-theme yasnippet which-key use-package magit lsp-ui lsp-java flycheck flx counsel-projectile company)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; sets
+(setq c-default-style
+      '((c-mode . "linux")))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
