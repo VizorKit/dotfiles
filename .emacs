@@ -68,7 +68,7 @@
   :config
   (global-set-key (kbd "C-x C-f") 'counsel-find-file)
   (global-set-key (kbd "M-x") 'counsel-M-x)
-  (global-set-key (kbd "C-x b") 'ivy-switch-buffer)
+  (global-set-key (kbd "C-x b") 'ivy-switch-buffer-other-window)
   (setq ivy-use-virtual-buffers t
                 ivy-count-format "%d/%d ")
   (setq ivy-initial-inputs-alist nil)
@@ -98,7 +98,6 @@
   :ensure t
   :hook (
                 (java-mode . lsp)
-		(c-mode . lsp)
                 (lsp-mode . (lambda ()
                                        (let ((lsp-keymap-prefix "C-l"))
                                                 (lsp-enable-which-key-integration)))))
@@ -207,4 +206,12 @@ Assumes that the frame is only split into two."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; sets
 (setq c-default-style
       '((c-mode . "linux")))
+(setq lsp-clients-angular-language-server-command
+  '("node"
+    "/usr/lib/node_modules/@angular/language-server"
+    "--ngProbeLocations"
+    "/usr/lib/node_modules"
+    "--tsProbeLocations"
+    "/usr/lib/node_modules"
+    "--stdio"))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
