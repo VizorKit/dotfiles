@@ -61,7 +61,6 @@
   (global-set-key (kbd "C-s") 'swiper-isearch)
   (global-set-key (kbd "<f1> f") 'counsel-describe-function)
   (global-set-key (kbd "<f1> v") 'counsel-describe-variable))
-
 ;; basic search
 (use-package ivy
   :ensure t
@@ -192,6 +191,9 @@ Assumes that the frame is only split into two."
 	  (split-window-horizontally)
 	(split-window-vertically))
       (switch-to-buffer nil)))
+(defun font-size-increase ()
+  "Increases the font size."
+  (set-face-attribute 'default nil :height 200))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; set keys
 (global-set-key (kbd "C-c k") 'delete-other-windows)
 (global-set-key (kbd "C-c o") 'other-window)
@@ -202,6 +204,7 @@ Assumes that the frame is only split into two."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; hooks
 (add-hook 'after-init-hook 'global-company-mode)
 (add-hook 'java-mode-hook #'lsp)
+(add-hook 'fundamental-mode-hook 'font-size-increase)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; sets
