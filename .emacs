@@ -28,9 +28,9 @@
   :ensure t
   :config
   (setq zenburn-override-colors-alist
-                '(("zenburn-red" . "#de7a78")
-                  ("zenburn-bg-05" . "#292928")
-                  ("zenburn-bg" . "#3b3837")))
+	'(("zenburn-red" . "#de7a78")
+	  ("zenburn-bg-05" . "#292928")
+	  ("zenburn-bg" . "#3b3837")))
   (load-theme 'zenburn t))
 
 ;; completes most things
@@ -61,13 +61,14 @@
   (global-set-key (kbd "C-s") 'swiper-isearch)
   (global-set-key (kbd "<f1> f") 'counsel-describe-function)
   (global-set-key (kbd "<f1> v") 'counsel-describe-variable))
+
 ;; basic search
 (use-package ivy
   :ensure t
   :config
   (global-set-key (kbd "C-x C-f") 'counsel-find-file)
   (global-set-key (kbd "M-x") 'counsel-M-x)
-  (global-set-key (kbd "C-x b") 'ivy-switch-buffer-other-window)
+  (global-set-key (kbd "C-x b") 'ivy-switch-buffer)
   (setq ivy-use-virtual-buffers t
                 ivy-count-format "%d/%d ")
   (setq ivy-initial-inputs-alist nil)
@@ -96,13 +97,13 @@
 (use-package lsp-mode
   :ensure t
   :hook (
-                (java-mode . lsp)
-                (lsp-mode . (lambda ()
-                                       (let ((lsp-keymap-prefix "C-l"))
-                                                (lsp-enable-which-key-integration)))))
+          (java-mode . lsp)
+          (lsp-mode . (lambda ()
+                        (let ((lsp-keymap-prefix "C-l"))
+                              (lsp-enable-which-key-integration)))))
   :init
   (setq lsp-idle-delay .02
-                lsp-signature-doc-lines 5)
+        lsp-signature-doc-lines 5)
   :config
   (define-key lsp-mode-map (kbd "C-l") lsp-command-map)
   :commands lsp)
@@ -177,6 +178,7 @@
 (defun test-command ()
   "A String representing the test command to run for the given context."
   (cond
+   ((eq major-mode 'java-mode) "mvn test") ;; todo, configure this so it prompts input.
    ((eq major-mode 'c-mode) "make test")))
 
 (defun toggle-frame-split ()
