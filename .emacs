@@ -52,7 +52,7 @@
 ;; git config
 (use-package magit
   :ensure t
-  :bind ("C-x g" . magit-status))
+  :bind ("C-c g" . magit-status))
 
 ;; basic help
 (use-package counsel
@@ -68,7 +68,7 @@
   :config
   (global-set-key (kbd "C-x C-f") 'counsel-find-file)
   (global-set-key (kbd "M-x") 'counsel-M-x)
-  (global-set-key (kbd "C-x b") 'ivy-switch-buffer)
+  (global-set-key (kbd "C-x b") 'ivy-switch-buffer-other-window)
   (setq ivy-use-virtual-buffers t
                 ivy-count-format "%d/%d ")
   (setq ivy-initial-inputs-alist nil)
@@ -151,6 +151,13 @@
               "-XX:+UseStringDeduplication"
               ,(concat "-javaagent:" "$$LOMBOK_PATH")
               ,(concat "-Xbootclasspath/a:" "$$LOMBOK_PATH"))))
+
+;; working on javascript and typescript
+(use-package typescript-mode
+  :ensure t
+  :config
+  (add-hook 'typescript-mode-hook 'lsp)
+  (add-hook 'html-mode-hook 'lsp))
 
 ;; does some basic error checking/linting
 (use-package flycheck
