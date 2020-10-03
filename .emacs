@@ -7,10 +7,11 @@
   (package-install 'use-package))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; basic emacs
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; standard emacs
 (setq inhibit-startup-message t)
 (setq visible-bell nil)
 (setq ring-bell-function 'ignore)
+(setq inhibit-splash-screen t)
 (tool-bar-mode -1)
 (menu-bar-mode -1)
 (scroll-bar-mode -1)
@@ -22,8 +23,23 @@
 (global-display-line-numbers-mode)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; basic editor
+(global-set-key (kbd "C-z") 'undo) ;; undo
+(global-set-key (kbd "C-s") 'save-buffer) ;; save file
+(global-set-key (kbd "C-x") 'kill-region) ;; kills marked region. last marked region if none set.
+(global-set-key (kbd "C-w") 'write-file) ;; save as
+(global-set-key (kbd "C-v") 'yank) ;; paste
+(global-set-key (kbd "C-c") 'kill-ring-save) ;; copy
+(global-set-key (kbd "C-q") 'save-buffers-kill-terminal) ;; quit
+(global-set-key (kbd "C-r") 'backward-char) ;; r for reverse f for forward
+;; prefixes
+(global-set-key (kbd "C-b") ctl-x-map) ;; (buffer-mode) = C-b
+(global-unset-key (kbd "C-u"))
+(global-set-key (kbd "C-u") mode-specific-map) ;; (user-mode) = C-u
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; packages
-;; basic theme
+;; low contrast theme
 (use-package zenburn-theme
   :ensure t
   :config
@@ -32,7 +48,6 @@
 	  ("zenburn-bg-05" . "#292928")
 	  ("zenburn-bg" . "#3b3837")))
   (load-theme 'zenburn t))
-
 ;; completes most things
 (use-package company
   :ensure t
@@ -49,28 +64,24 @@
   :config
   (which-key-mode))
 
-;; git config
-(use-package magit
-  :ensure t
-  :bind ("C-c g" . magit-status))
-
 ;; basic help
 (use-package counsel
   :ensure t
   :config
-  (global-set-key (kbd "C-s") 'swiper-isearch)
-  (global-set-key (kbd "<f1> f") 'counsel-describe-function)
-  (global-set-key (kbd "<f1> v") 'counsel-describe-variable))
+  (global-set-key (kbd "C-b s") 'swiper-isearch)
+  (global-set-key (kbd "C-h f") 'counsel-describe-function)
+  (global-set-key (kbd "C-h v") 'counsel-describe-variable)
+  (global-set-key (kbd "C-b f") 'counsel-find-file)
+  (global-set-key (kbd "M-x") 'counsel-M-x))
 
 ;; basic search
 (use-package ivy
   :ensure t
   :config
-  (global-set-key (kbd "C-x C-f") 'counsel-find-file)
-  (global-set-key (kbd "M-x") 'counsel-M-x)
-  (global-set-key (kbd "C-x b") 'ivy-switch-buffer-other-window)
+  (global-set-key (kbd "C-b b") 'ivy-switch-buffer)
+  (global-set-key (kbd "C-b C-b") 'ivy-switch-buffer-other-window)
   (setq ivy-use-virtual-buffers t
-                ivy-count-format "%d/%d ")
+  	          ivy-count-format "%d/%d ")
   (setq ivy-initial-inputs-alist nil)
   (setq ivy-re-builders-alist
                 '((ivy-switch-buffer . ivy--regex-plus)
@@ -83,17 +94,11 @@
   (setq projectile-project-search-path '("~/source/"))
   (setq projectile-completion-system 'ivy)
   (setq projectile-enable-caching t)
-  (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-  (setq projectile-test-cmd #'test-command)
+  (define-key projectile-mode-map (kbd "C-u p") 'projectile-command-map)
   (projectile-mode))
 
-;; advanced project maneuvering
-(use-package counsel-projectile
-  :ensure t
-  :config
-  (counsel-projectile-mode t))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; begin ide
+;; enables lsp
 (use-package lsp-mode
   :ensure t
   :hook (
@@ -108,13 +113,7 @@
   (define-key lsp-mode-map (kbd "C-l") lsp-command-map)
   :commands lsp)
 
-;; completes most with lsp
-(use-package company-lsp
-  :ensure t
-  :config
-  (add-hook 'after-init-hook 'global-company-mode))
-
-;; peek capabilities
+;; ui ide features
 (use-package lsp-ui
   :ensure t
   :config
@@ -122,44 +121,7 @@
   (define-key lsp-ui-mode-map (kbd "C-l /") 'xref-find-references)
   :commands lsp-ui-mode)
 
-;; search capabilities
-(use-package lsp-ivy
-  :ensure t
-  :commands lsp-ivy-workspace-symbol)
-
-;; todo:: configure
-(use-package lsp-treemacs
-  :ensure t
-  :commands lsp-treemacs-errors-list)
-
-;; debug mode still need to configure
-(use-package dap-mode
-  :ensure t
-  :after lsp-mode
-  :config
-  (dap-auto-configure-mode))
-
-;; java configuration, set lombok path
-(use-package lsp-java
-  :ensure t
-  :config
-  (add-hook 'java-mode-hook 'lsp)
-  (setq lsp-java-vmargs
-            `("-noverify"
-              "-Xmx1G"
-              "-XX:+UseG1GC"
-              "-XX:+UseStringDeduplication"
-              ,(concat "-javaagent:" "$$LOMBOK_PATH")
-              ,(concat "-Xbootclasspath/a:" "$$LOMBOK_PATH"))))
-
-;; working on javascript and typescript
-(use-package typescript-mode
-  :ensure t
-  :config
-  (add-hook 'typescript-mode-hook 'lsp)
-  (add-hook 'html-mode-hook 'lsp))
-
-;; does some basic error checking/linting
+;; does error checking/linting
 (use-package flycheck
   :ensure t
   :config
@@ -175,55 +137,6 @@
   (setq yas-snippet-dirs
 	'("~/.emacs.d/snippets"
 	  "~/.emacs.d/snippets-collection"))
+  (global-set-key (kbd "C-u") yas-minor-mode-map)
   (yas-global-mode 1))
-;; todo:: configure
-(use-package hydra
-  :ensure t)
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; functions
-(defun test-command ()
-  "A String representing the test command to run for the given context."
-  (cond
-   ((eq major-mode 'java-mode) "mvn test") ;; todo, configure this so it prompts input.
-   ((eq major-mode 'c-mode) "make test")))
-
-(defun toggle-frame-split ()
-    "If the frame is split vertically, split it horizontally or vice versa.
-Assumes that the frame is only split into two."
-    (interactive)
-    (unless (= (length (window-list)) 2) (error "Can only toggle a frame split in two"))
-    (let ((split-vertically-p (window-combined-p)))
-      (delete-window)
-      (if split-vertically-p
-	  (split-window-horizontally)
-	(split-window-vertically))
-      (switch-to-buffer nil)))
-(defun font-size-increase ()
-  "Increases the font size."
-  (set-face-attribute 'default nil :height 200))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; set keys
-(global-set-key (kbd "C-c k") 'delete-other-windows)
-(global-set-key (kbd "C-c o") 'other-window)
-(global-set-key (kbd "C-c 0") 'delete-window)
-(global-set-key (kbd "C-c t") 'toggle-frame-split)
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; hooks
-(add-hook 'after-init-hook 'global-company-mode)
-(add-hook 'java-mode-hook #'lsp)
-(add-hook 'fundamental-mode-hook 'font-size-increase)
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; sets
-(setq c-default-style
-      '((c-mode . "linux")))
-(setq lsp-clients-angular-language-server-command
-  '("node"
-    "/usr/lib/node_modules/@angular/language-server"
-    "--ngProbeLocations"
-    "/usr/lib/node_modules"
-    "--tsProbeLocations"
-    "/usr/lib/node_modules"
-    "--stdio"))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; end ide
