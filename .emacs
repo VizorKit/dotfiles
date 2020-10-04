@@ -95,7 +95,10 @@
   	          ivy-count-format "%d/%d ")
   (setq ivy-initial-inputs-alist nil)
   (setq ivy-re-builders-alist
-                '((ivy-switch-buffer . ivy--regex-plus)
+        '((ivy-switch-buffer . ivy--regex-plus)
+	  (swiper-isearch . ivy--regex-plus)
+	  (counsel-describe-function . ivy--regex-plus)
+	  (counsel-describe-variable . ivy--regex-plus)
           (t . ivy--regex-fuzzy))))
 
 ;; basic project maneuvering

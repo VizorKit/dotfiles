@@ -1,6 +1,3 @@
-curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
-     https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-
 unameVAR="$(uname -s)"
 if [[ "$unameVAR" == *"Linux"* ]]; then
     sudo add-apt-repository ppa:kelleyk/emacs
@@ -9,7 +6,7 @@ if [[ "$unameVAR" == *"Linux"* ]]; then
     read -p "Will you use C? y or n: " is_c
 fi
 if [[ "$unameVAR" == *"MINGW"* ]]; then
-    read -p "Make sure you install emacs separately" var1
+    read -p "Make sure you install emacs separately" emacs
 fi
 
 read -p "Will you use Java? y or n: " is_java
