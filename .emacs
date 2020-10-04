@@ -29,13 +29,17 @@
 (global-set-key (kbd "C-x") 'kill-region) ;; kills marked region. last marked region if none set.
 (global-set-key (kbd "C-w") 'write-file) ;; save as
 (global-set-key (kbd "C-v") 'yank) ;; paste
-(global-set-key (kbd "C-c") 'kill-ring-save) ;; copy
+(global-set-key (kbd "C-u") 'kill-ring-save) ;; copy (will be translated to C-c)
 (global-set-key (kbd "C-q") 'save-buffers-kill-terminal) ;; quit
 (global-set-key (kbd "C-r") 'backward-char) ;; r for reverse f for forward
 ;; prefixes
 (global-set-key (kbd "C-b") ctl-x-map) ;; (buffer-mode) = C-b
-(global-unset-key (kbd "C-u"))
-(global-set-key (kbd "C-u") mode-specific-map) ;; (user-mode) = C-u
+(keyboard-translate ?\C-c ?\C-u) ;; translates (user-mode) = C-u
+(keyboard-translate ?\C-u ?\C-c) ;; translates (copy C-u) = C-c
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; user-mode
+(global-set-key (kbd "C-c t") 'toggle-frame-split)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; packages
@@ -48,6 +52,7 @@
 	  ("zenburn-bg-05" . "#292928")
 	  ("zenburn-bg" . "#3b3837")))
   (load-theme 'zenburn t))
+
 ;; completes most things
 (use-package company
   :ensure t
@@ -55,6 +60,7 @@
          ("C-n" . company-select-next)
          ("C-p" . company-select-previous))
   :config
+  (add-hook 'after-init-hook 'global-company-mode)
   (setq company-idle-delay 0.2)
   (global-company-mode t))
 
@@ -63,6 +69,11 @@
   :ensure t
   :config
   (which-key-mode))
+
+;; git integration
+(use-package magit
+  :ensure t
+  :bind ("C-c g" . magit-status))
 
 ;; basic help
 (use-package counsel
@@ -95,8 +106,14 @@
   (setq projectile-completion-system 'ivy)
   (setq projectile-enable-caching t)
   (define-key projectile-mode-map (kbd "C-u p") 'projectile-command-map)
+  (setq projectile-test-cmd #'test-command)
   (projectile-mode))
 
+;; counsel on top of projectile
+(use-package counsel-projectile
+  :ensure t
+  :config
+  (counsel-projectile-mode t))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; begin ide
 ;; enables lsp
 (use-package lsp-mode
@@ -110,6 +127,7 @@
   (setq lsp-idle-delay .02
         lsp-signature-doc-lines 5)
   :config
+  (setq c-default-style '((c-mode . "linux")))
   (define-key lsp-mode-map (kbd "C-l") lsp-command-map)
   :commands lsp)
 
@@ -130,13 +148,43 @@
   (define-key flycheck-mode-map flycheck-keymap-prefix flycheck-command-map)
   (global-flycheck-mode))
 
-;; snippets
-(use-package yasnippet
+;; enables typescript mode.
+(use-package typescript-mode
   :ensure t
   :config
-  (setq yas-snippet-dirs
-	'("~/.emacs.d/snippets"
-	  "~/.emacs.d/snippets-collection"))
-  (global-set-key (kbd "C-u") yas-minor-mode-map)
-  (yas-global-mode 1))
+  (add-hook 'typescript-mode-hook 'lsp)
+  (add-hook 'html-mode-hook 'lsp))
+
+;;; be sure to override the lombok path
+(use-package lsp-java
+  :ensure t
+  :config
+  (add-hook 'java-mode-hook 'lsp)
+  (setq lsp-java-vmargs
+            `("-noverify"
+              "-Xmx1G"
+              "-XX:+UseG1GC"
+              "-XX:+UseStringDeduplication"
+              ,(concat "-javaagent:" "$$LOMBOK_PATH")
+              ,(concat "-Xbootclasspath/a:" "$$LOMBOK_PATH"))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; end ide
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; functions
+(defun test-command ()
+  "A String representing the test command to run for the given context."
+  (cond
+   ((eq major-mode 'java-mode) "mvn test")
+   ((eq major-mode 'c-mode) "make test")))
+
+(defun toggle-frame-split ()
+    "If the frame is split vertically, split it horizontally or vice versa.
+Assumes that the frame is only split into two."
+    (interactive)
+    (unless (= (length (window-list)) 2) (error "Can only toggle a frame split in two"))
+    (let ((split-vertically-p (window-combined-p)))
+      (delete-window)
+      (if split-vertically-p
+	  (split-window-horizontally)
+	(split-window-vertically))
+      (switch-to-buffer nil)))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
