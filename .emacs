@@ -32,6 +32,7 @@
 (global-set-key (kbd "C-u") 'kill-ring-save) ;; copy (will be translated to C-c)
 (global-set-key (kbd "C-q") 'save-buffers-kill-terminal) ;; quit
 (global-set-key (kbd "C-r") 'backward-char) ;; r for reverse f for forward
+(global-set-key (kbd "<backtab>") 'unindent) ;; unindents
 ;; prefixes
 (global-set-key (kbd "C-b") ctl-x-map) ;; (buffer-mode) = C-b
 (keyboard-translate ?\C-c ?\C-u) ;; translates (user-mode) = C-u
@@ -188,12 +189,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; end ide
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; functions
+;; add your test commands here
 (defun test-command ()
   "A String representing the test command to run for the given context."
   (cond
    ((eq major-mode 'java-mode) "mvn test")
    ((eq major-mode 'c-mode) "make test")))
 
+;; toggles between horizontally and vertically aligned windows.
 (defun toggle-frame-split ()
     "If the frame is split vertically, split it horizontally or vice versa.
 Assumes that the frame is only split into two."
@@ -205,4 +208,30 @@ Assumes that the frame is only split into two."
 	  (split-window-horizontally)
 	(split-window-vertically))
       (switch-to-buffer nil)))
+
+;; unindents
+(defun unindent ()
+  "remove 4 spaces from beginning of of line"
+  (interactive)
+  (save-excursion
+    (save-match-data
+      (beginning-of-line)
+      ;; get rid of tabs at beginning of line
+      (when (looking-at "^\\s-+")
+	(untabify (match-beginning 0) (match-end 0)))
+      (when (looking-at "^    ")
+	        (replace-match "")))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   '(yasnippet lsp-java typescript-mode flycheck lsp-ui company-lsp lsp-mode counsel-projectile projectile counsel magit which-key company zenburn-theme use-package)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
