@@ -134,6 +134,12 @@
   (define-key lsp-mode-map (kbd "C-l") lsp-command-map)
   :commands lsp)
 
+;; completes most lsp
+(use-package company-lsp
+  :ensure t
+  :config
+  (add-hook 'after-init-hook 'global-company-mode))
+
 ;; ui ide features
 (use-package lsp-ui
   :ensure t
@@ -170,6 +176,15 @@
               "-XX:+UseStringDeduplication"
               ,(concat "-javaagent:" "$$LOMBOK_PATH")
               ,(concat "-Xbootclasspath/a:" "$$LOMBOK_PATH"))))
+
+;; snippets
+(use-package yasnippet
+  :ensure t
+  :config
+  (setq yas-snippet-dirs
+	'("~/.emacs.d/snippets"
+	  "~/.emacs.d/snippets-collection"))
+  (yas-global-mode 1))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; end ide
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; functions
