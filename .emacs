@@ -100,6 +100,7 @@
 	  (swiper-isearch . ivy--regex-plus)
 	  (counsel-describe-function . ivy--regex-plus)
 	  (counsel-describe-variable . ivy--regex-plus)
+	  (counsel-M-x . ivy--regex-plus)
           (t . ivy--regex-fuzzy))))
 
 ;; basic project maneuvering
@@ -178,6 +179,13 @@
               ,(concat "-javaagent:" "$$LOMBOK_PATH")
               ,(concat "-Xbootclasspath/a:" "$$LOMBOK_PATH"))))
 
+(use-package dap-mode
+  :ensure t
+  :after lsp-mode
+  :config
+  (setq gud-key-prefix (kbd "C-b C-a"))
+  (dap-auto-configure-mode))
+
 ;; snippets
 (use-package yasnippet
   :ensure t
@@ -222,16 +230,4 @@ Assumes that the frame is only split into two."
       (when (looking-at "^    ")
 	        (replace-match "")))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   '(yasnippet lsp-java typescript-mode flycheck lsp-ui company-lsp lsp-mode counsel-projectile projectile counsel magit which-key company zenburn-theme use-package)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+
