@@ -41,7 +41,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; user-mode
 (global-set-key (kbd "C-c t") 'toggle-frame-split)
-(global-set-key (kbd "C-c d") 'delete-between-pair)
+(global-set-key (kbd "C-c i") 'delete-between-pair)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; packages
