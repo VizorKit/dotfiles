@@ -114,11 +114,17 @@
 
 ;;; treemacs
 (use-package treemacs
+  :bind
   :ensure t)
 
 ;;; treemacs-projectile
 (use-package treemacs-projectile
-  :ensure t)
+  :after treemacs projectile
+  :bind
+  (:map global-map
+	("C-c n" . treemacs-projectile))
+  :ensure t
+  :config)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; ide features
@@ -152,7 +158,10 @@
 
 ;;; treemacs
 (use-package lsp-treemacs
-    :ensure t
+  :bind
+  (:map global-map
+	("C-l n"))
+  :ensure t
     :after lsp
     :config
     (lsp-treemacs-sync-mode 1))
@@ -255,16 +264,3 @@ Assumes that the frame is only split into two."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   '(treemacs-projectile flycheck lsp-ivy lsp-treemacs lsp-ui typescript-mode lsp-mode treemacs projectile counsel ivy which-key company zenburn-theme use-package)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
