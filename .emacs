@@ -112,19 +112,6 @@
   (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
   (projectile-mode))
 
-;;; treemacs
-(use-package treemacs
-  :bind
-  :ensure t)
-
-;;; treemacs-projectile
-(use-package treemacs-projectile
-  :after treemacs projectile
-  :bind
-  (:map global-map
-	("C-c n" . treemacs-projectile))
-  :ensure t
-  :config)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; ide features
@@ -155,16 +142,6 @@
   :hook (lsp-mode . lsp-ui-mode)
   :custom
   (lsp-ui-doc-position 'bottom))
-
-;;; treemacs
-(use-package lsp-treemacs
-  :bind
-  (:map global-map
-	("C-l n"))
-  :ensure t
-    :after lsp
-    :config
-    (lsp-treemacs-sync-mode 1))
 
 (use-package lsp-ivy
   :ensure t)
