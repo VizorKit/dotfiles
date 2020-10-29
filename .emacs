@@ -58,8 +58,31 @@
   (setq zenburn-override-colors-alist
 	'(("zenburn-red" . "#de7a78")
 	  ("zenburn-bg-05" . "#292928")
-	  ("zenburn-bg" . "#3b3837")))
-  (load-theme 'zenburn t))
+	  ("zenburn-bg" . "#3b3837"))))
+(use-package autothemer
+  :ensure t
+  :init
+  (autothemer-deftheme
+   vizorkit "A theme."
+   ((((class color) (min-colors #xFFFFFF)))
+    (vk-cyan "cyan")
+    (vk-black "black")
+    (vk-lt-green "light green")
+    (vk-yellow "yellow")
+    (vk-purple "magenta")
+    (vk-white "ghost white")
+    (vk-green "green")
+    (vk-gray "gray50"))
+   ((default (:foreground vk-white :background vk-black))
+    (font-lock-keyword-face (:foreground vk-yellow))
+    (font-lock-constant-face (:foreground vk-green))
+    (font-lock-comment-face (:foreground vk-cyan))
+    (font-lock-string-face (:foreground vk-purple))
+    (font-lock-builtin-face (:foreground vk-lt-green))
+    (region (:background vk-gray))
+    (cursor (:background vk-yellow))))
+  :config
+  (enable-theme 'vizorkit))
 
 ;;; company
 (use-package company
