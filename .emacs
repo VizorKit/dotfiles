@@ -59,6 +59,8 @@
 	'(("zenburn-red" . "#de7a78")
 	  ("zenburn-bg-05" . "#292928")
 	  ("zenburn-bg" . "#3b3837"))))
+
+;;; high contrast custom theme
 (use-package autothemer
   :ensure t
   :init
@@ -74,15 +76,21 @@
     (vk-green "green")
     (vk-gray "gray50"))
    ((default (:foreground vk-white :background vk-black))
-    (font-lock-keyword-face (:foreground vk-yellow))
-    (font-lock-constant-face (:foreground vk-green))
+    (font-lock-keyword-face (:foreground vk-yellow :weight 'bold))
+    (font-lock-constant-face (:foreground vk-green :weight 'bold))
     (font-lock-comment-face (:foreground vk-cyan))
     (font-lock-string-face (:foreground vk-purple))
-    (font-lock-builtin-face (:foreground vk-lt-green))
+    (font-lock-builtin-face (:foreground vk-lt-green :slant 'italic))
+    (font-lock-function-name-face (:foreground vk-green :slant 'italic))
+    (font-lock-variable-name-face (:foreground vk-lt-green :weight 'bold))
     (region (:background vk-gray))
     (cursor (:background vk-yellow))))
   :config
   (enable-theme 'vizorkit))
+
+;;; color identifiers for supported languages
+(use-package color-identifiers-mode
+  :ensure t)
 
 ;;; company
 (use-package company
