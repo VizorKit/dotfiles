@@ -9,7 +9,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; windows setup
 (when (eq system-type 'windows-nt)
   ;; be sure to set the HOME environment variable and install git bash
-  (setq explicit-shell-file-name "C:/Program Files/Git/bin/bash.exe")
+  (setq explicit-shell-file-name "C:\\Program Files\\Git\\bin\\bash.exe")
   (setq explicit-bash.exe-args '("--login" "-i"))
   (setq default-directory "~/"))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; basic emacs setup
@@ -67,6 +67,7 @@
     (vk-yellow "yellow")
     (vk-purple "magenta")
     (vk-white "ghost white")
+    (vk-blue "blue")
     (vk-green "green")
     (vk-gray "gray50")
     (vk-red "red")
@@ -82,7 +83,8 @@
     (error (:foreground vk-red))
      (company-tooltip (:background vk-slate))
     (company-tooltip-common (:weight 'bold :foreground vk-purple))
-    (region (:background vk-slate))
+    (hl-line (:background vk-slate))
+    (region (:background vk-blue ))
     (cursor (:background vk-yellow))))
   :config
   (enable-theme 'chris-theme))
@@ -157,6 +159,14 @@
   (add-hook 'typescript-mode-hook 'lsp)
   (add-hook 'html-mode-hook 'lsp)
   (setq typescript-indent-level 2))
+;;; rust mode
+(use-package rust-mode
+  :ensure t
+  :config
+  (add-hook 'rust-mode-hook
+            (lambda () (setq indent-tabs-mode nil)))
+  (setq rust-format-on-save t))
+
 ;;; lsp ui
 (use-package lsp-ui
   :ensure t
@@ -246,4 +256,4 @@ Assumes that the frame is only split into two."
   (forward-char 1)
   (seek-to-matching-char (get-start-char char) (get-end-char char) 1)
   (kill-region mark (point)))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
