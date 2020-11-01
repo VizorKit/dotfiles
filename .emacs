@@ -26,6 +26,7 @@
 (setq auto-save-file-name-transforms
       `((".*" ,temporary-file-directory t)))
 (global-display-line-numbers-mode)
+(setq byte-compile-warnings '(cl-functions))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; basic editor
 (global-set-key (kbd "C-z") 'undo) ;; undo
