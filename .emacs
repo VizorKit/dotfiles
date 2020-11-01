@@ -92,7 +92,8 @@
 (use-package color-identifiers-mode
   :ensure t
   :config
-  (add-hook 'typescript-mode-hook 'color-identifiers-mode))
+  (add-hook 'typescript-mode-hook 'color-identifiers-mode)
+  (add-hook 'rust-mode-hook 'color-identifiers-mode))
 ;;; company
 (use-package company
   :ensure t
@@ -161,12 +162,17 @@
   (setq typescript-indent-level 2))
 ;;; rust mode
 (use-package rust-mode
+  :hook (rust-mode . lsp)
   :ensure t
   :config
   (add-hook 'rust-mode-hook
             (lambda () (setq indent-tabs-mode nil)))
   (setq rust-format-on-save t))
-
+;;; flycheck rust
+(use-package flycheck-rust
+  :ensure t
+  :config
+  (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
 ;;; lsp ui
 (use-package lsp-ui
   :ensure t
