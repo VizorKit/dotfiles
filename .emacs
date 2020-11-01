@@ -173,6 +173,23 @@
   :ensure t
   :config
   (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
+;;; csharp-mode
+(use-package csharp-mode
+  :ensure t
+  :config
+  (electric-pair-mode 1)
+  (electric-pair-local-mode 1))
+;;; omnisharp
+(use-package omnisharp
+  :ensure t
+  :config
+  (add-hook 'csharp-mode-hook 'omnisharp-mode)
+  (add-hook 'csharp-mode-hook (lambda ()
+				(setq indent-tabs-mode nil)
+				(setq c-syntactic-indentation t)
+				(c-set-style "ellemtel")
+				(setq c-basic-offset 4)
+				(setq truncate-lines t))))
 ;;; lsp ui
 (use-package lsp-ui
   :ensure t
@@ -262,4 +279,3 @@ Assumes that the frame is only split into two."
   (forward-char 1)
   (seek-to-matching-char (get-start-char char) (get-end-char char) 1)
   (kill-region mark (point)))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
