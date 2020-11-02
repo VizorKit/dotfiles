@@ -197,8 +197,10 @@
   :hook (lsp-mode . lsp-ui-mode)
   :custom
   (lsp-ui-doc-position 'bottom))
+;;; lsp-ivy
 (use-package lsp-ivy
   :ensure t)
+;;; flychceck
 (use-package flycheck
   :ensure t
   :config
@@ -206,7 +208,22 @@
   (setq flycheck-keymap-prefix (kbd "C-l c"))
   (define-key flycheck-mode-map flycheck-keymap-prefix flycheck-command-map)
   (global-flycheck-mode))
+;;; org-mode
+(use-package org
+  :ensure t
+  :config
+  (global-set-key (kbd "C-c l") 'org-store-link)
+  (global-set-key (kbd "C-c a") 'org-agenda)
+  (global-set-key (kbd "C-c c") 'org-capture)
+  (setq org-log-done t))
+;;; tabout!
+(use-package tab-jump-out
+  :ensure t
+  :config
+  (tab-jump-out-mode))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; custom functions
 ;;; toggle frame split
 (defun toggle-frame-split ()
@@ -280,3 +297,6 @@ Assumes that the frame is only split into two."
   (forward-char 1)
   (seek-to-matching-char (get-start-char char) (get-end-char char) 1)
   (kill-region mark (point)))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
