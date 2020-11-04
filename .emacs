@@ -220,7 +220,9 @@
 (use-package tab-jump-out
   :ensure t
   :config
-  (tab-jump-out-mode))
+  (define-globalized-minor-mode my-global-tabout-mode tab-jump-out-mode
+  (lambda () (tab-jump-out-mode 1)))
+  (my-global-tabout-mode))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
