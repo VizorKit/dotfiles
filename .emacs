@@ -6,12 +6,15 @@
   (package-refresh-contents)
   (package-install 'use-package))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; windows setup
 (when (eq system-type 'windows-nt)
   ;; be sure to set the HOME environment variable and install git bash
   (setq explicit-shell-file-name "C:\\Program Files\\Git\\bin\\bash.exe")
   (setq explicit-bash.exe-args '("--login" "-i"))
   (setq default-directory "~/"))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; basic emacs setup
 (setq inhibit-startup-message t)
 (setq visible-bell nil)
@@ -28,6 +31,7 @@
 (global-display-line-numbers-mode)
 (setq byte-compile-warnings '(cl-functions))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; basic editor
 (global-set-key (kbd "C-z") 'undo) ;; undo
 (global-set-key (kbd "C-s") 'save-buffer) ;; save file
@@ -42,10 +46,12 @@
 (keyboard-translate ?\C-c ?\C-u) ;; translates (user-mode) = C-u
 (keyboard-translate ?\C-u ?\C-c) ;; translates (copy C-u) = C-c
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; custom functions binding
 (global-set-key (kbd "C-c t") 'toggle-frame-split)
 (global-set-key (kbd "C-c i") 'delete-between-pair)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; packages
 ;;; low contrast theme
 (use-package zenburn-theme
@@ -142,6 +148,7 @@
   (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
   (projectile-mode))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; ide features
 ;;; lsp-mode
 (use-package lsp-mode
@@ -241,7 +248,7 @@ Assumes that the frame is only split into two."
       (switch-to-buffer nil)))
 ;;; delete inbetween
 (defun seek-backward-to-char (chr)
-  "Seek backwards to a character"
+  "Seek backwards to a character."
   (interactive "cSeek back to char: ")
   (while (not (= (char-after) chr))
     (forward-char -1)))
