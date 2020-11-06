@@ -1,4 +1,9 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; use-package
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; load-time settings
+(setq gc-cons-threshold 500000000)
+(setq gc-cons-percentage .8)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; use-package
 (package-initialize)
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
@@ -20,6 +25,8 @@
 (setq visible-bell nil)
 (setq ring-bell-function 'ignore)
 (setq inhibit-splash-screen t)
+(electric-pair-local-mode 1)
+(electric-pair-mode 1)
 (tool-bar-mode -1)
 (menu-bar-mode -1)
 (scroll-bar-mode -1)
@@ -53,14 +60,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; packages
-;;; low contrast theme
-(use-package zenburn-theme
-  :ensure t
-  :config
-  (setq zenburn-override-colors-alist
-                '(("zenburn-red" . "#de7a78")
-                  ("zenburn-bg-05" . "#292928")
-                  ("zenburn-bg" . "#3b3837"))))
 ;;; high contrast custom theme
 (use-package autothemer
   :ensure t
@@ -95,20 +94,14 @@
     (cursor (:background vk-yellow))))
   :config
   (enable-theme 'chris-theme))
-;;; color identifiers for supported languages
-(use-package color-identifiers-mode
-  :ensure t
-  :config
-  (add-hook 'typescript-mode-hook 'color-identifiers-mode)
-  (add-hook 'rust-mode-hook 'color-identifiers-mode))
 ;;; company
 (use-package company
   :ensure t
+  :hook ((after-init . global-company-mode))
   :bind (:map company-active-map
          ("C-n" . company-select-next)
          ("C-p" . company-select-previous))
   :config
-  (add-hook 'after-init-hook 'global-company-mode)
   (setq company-idle-delay 0)
   (setq company-minimum-prefix-length 1)
   (setq company-selection-wrap-around t))
@@ -141,12 +134,12 @@
 ;;; projectile
 (use-package projectile
   :ensure t
+  :hook ((after-init . projectile-mode))
   :config
   (setq projectile-project-search-path '("~/source/"))
   (setq projectile-completion-system 'ivy)
   (setq projectile-enable-caching t)
-  (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-  (projectile-mode))
+  (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; ide features
@@ -164,9 +157,9 @@
 ;;; typescript mode
 (use-package typescript-mode
   :ensure t
+  :hook ((typescript-mode . lsp)
+	 (html-mode . lsp))
   :config
-  (add-hook 'typescript-mode-hook 'lsp)
-  (add-hook 'html-mode-hook 'lsp)
   (setq typescript-indent-level 2))
 ;;; rust mode
 (use-package rust-mode
@@ -179,25 +172,15 @@
 ;;; flycheck rust
 (use-package flycheck-rust
   :ensure t
-  :config
-  (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
+  :hook (flycheck-mode . flycheck-rust-setup))
 ;;; csharp-mode
 (use-package csharp-mode
   :ensure t
-  :config
-  (electric-pair-mode 1)
-  (electric-pair-local-mode 1))
+  :defer t)
 ;;; omnisharp
 (use-package omnisharp
   :ensure t
-  :config
-  (add-hook 'csharp-mode-hook 'omnisharp-mode)
-  (add-hook 'csharp-mode-hook (lambda ()
-				(setq indent-tabs-mode nil)
-				(setq c-syntactic-indentation t)
-				(c-set-style "ellemtel")
-				(setq c-basic-offset 4)
-				(setq truncate-lines t))))
+  :hook (csharp-mode . omnisharp-mode))
 ;;; lsp ui
 (use-package lsp-ui
   :ensure t
@@ -206,6 +189,8 @@
   (lsp-ui-doc-position 'bottom))
 ;;; lsp-ivy
 (use-package lsp-ivy
+  :after ivy
+  :defer t
   :ensure t)
 ;;; flychceck
 (use-package flycheck
@@ -218,11 +203,12 @@
 ;;; org-mode
 (use-package org
   :ensure t
+  :defer t
   :config
-  (global-set-key (kbd "C-c l") 'org-store-link)
-  (global-set-key (kbd "C-c a") 'org-agenda)
-  (global-set-key (kbd "C-c c") 'org-capture)
-  (setq org-log-done t))
+    (global-set-key (kbd "C-c l") 'org-store-link)
+    (global-set-key (kbd "C-c a") 'org-agenda)
+    (global-set-key (kbd "C-c c") 'org-capture)
+    (setq org-log-done t))
 ;;; tabout!
 (use-package tab-jump-out
   :ensure t
@@ -308,4 +294,16 @@ Assumes that the frame is only split into two."
   (kill-region mark (point)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; profiling & normal gc settings
+(setq gc-cons-threshold 800000)
+(setq gc-cons-percentage .2)
+(add-hook 'emacs-startup-hook
+          (lambda ()
+            (message "Emacs ready in %s with %d garbage collections."
+                     (format "%.2f seconds"
+                             (float-time
+                              (time-subtract after-init-time before-init-time)))
+                     gcs-done)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; end for custom-set variables
