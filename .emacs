@@ -147,11 +147,15 @@
 (use-package lsp-mode
   :ensure t
   :commands lsp
+  :hook ((c-mode . lsp)
+	 (c++-mode . lsp)
+	 (csharp-mode . lsp))
   :init
   (setq lsp-idle-delay .01
                 lsp-signature-doc-lines 5)
   (setq lsp-keymap-prefix "C-l")
   :config
+  (setq lsp-clients-clangd-args '("-j=4" "-log=error"))
   (add-hook 'after-init-hook 'global-company-mode)
   (lsp-enable-which-key-integration t))
 ;;; typescript mode
@@ -180,7 +184,15 @@
 ;;; omnisharp
 (use-package omnisharp
   :ensure t
-  :hook (csharp-mode . omnisharp-mode))
+  :hook ((csharp-mode . omnisharp-mode)
+	 (csharp-mode . (lambda ()
+			  (setq indent-tabs-mode nil)
+			  (setq c-syntactic-indentation t)
+			  (c-set-style "ellemtel")
+			  (setq c-basic-offset 4)
+			  (setq truncate-lines t))))
+  :config
+  (eval-after-load 'company '(add-to-list 'company-backends 'company-omnisharp)))
 ;;; lsp ui
 (use-package lsp-ui
   :ensure t
