@@ -141,7 +141,10 @@
   (setq projectile-enable-caching t)
   (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
   (global-set-key (kbd "C-c p R") 'projectile-replace-regex))
-
+;;; ag
+(use-package ag
+  :ensure t
+  :defer t)
 ;;; neotree
 (use-package neotree
   :ensure t
