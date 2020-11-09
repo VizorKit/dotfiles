@@ -77,7 +77,7 @@
     (vk-green "green")
     (vk-gray "gray50")
     (vk-red "red")
-    (vk-slate "dark slate gray"))
+    (vk-slate "gray17"))
    ((default (:foreground vk-white :background vk-black))
     (font-lock-keyword-face (:foreground vk-yellow :weight 'bold))
     (font-lock-constant-face (:foreground vk-green :weight 'bold))
@@ -139,7 +139,14 @@
   (setq projectile-project-search-path '("~/source/"))
   (setq projectile-completion-system 'ivy)
   (setq projectile-enable-caching t)
-  (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map))
+  (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+  (global-set-key (kbd "C-c p R") 'projectile-replace-regex))
+
+;;; neotree
+(use-package neotree
+  :ensure t
+  :config
+  (global-set-key (kbd "C-c n") 'neotree-toggle))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; ide features
