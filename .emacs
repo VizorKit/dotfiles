@@ -104,7 +104,8 @@
   :config
   (setq company-idle-delay 0)
   (setq company-minimum-prefix-length 1)
-  (setq company-selection-wrap-around t))
+  (setq company-selection-wrap-around t)
+  (setq company-require-match nil))
 ;;; which-key
 (use-package which-key
   :ensure t
