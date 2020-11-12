@@ -48,6 +48,7 @@
 (global-set-key (kbd "C-u") 'kill-ring-save) ;; copy (will be translated to C-c)
 (global-set-key (kbd "C-q") 'save-buffers-kill-terminal) ;; quit
 (global-set-key (kbd "C-r") 'backward-char) ;; r for reverse f for forward
+(global-set-key (kbd "C-e") 'kill-word) ;; exterminate word from point.
 ;; prefixes
 (global-set-key (kbd "C-b") ctl-x-map) ;; (buffer-mode) = C-b
 (keyboard-translate ?\C-c ?\C-u) ;; translates (user-mode) = C-u
@@ -319,7 +320,7 @@ Assumes that the frame is only split into two."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; profiling & normal gc settings
 (setq gc-cons-threshold 800000)
-(setq gc-cons-percentage .2)
+(setq gc-cons-percentage .1)
 (add-hook 'emacs-startup-hook
           (lambda ()
             (message "Emacs ready in %s with %d garbage collections."
