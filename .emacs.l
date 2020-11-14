@@ -49,7 +49,7 @@
 (global-set-key (kbd "C-u") 'kill-ring-save) ;; copy (will be translated to C-c)
 (global-set-key (kbd "C-q") 'save-buffers-kill-terminal) ;; quit
 (global-set-key (kbd "C-r") 'backward-char) ;; r for reverse f for forward
-(global-set-key (kbd "C-t") 'kill-word-at-point) ;; terminate word from point.
+(global-set-key (kbd "C-t") 'kill-word-at-point) ;; terminate word at point.
 ;; prefixes
 (global-set-key (kbd "C-b") ctl-x-map) ;; (buffer-mode) = C-b
 (keyboard-translate ?\C-c ?\C-u) ;; translates (user-mode) = C-u
@@ -80,7 +80,7 @@
     (vk-gray "gray50")
     (vk-red "red")
     (vk-slate "gray17"))
-   ((default (:foreground vk-white :background vk-black))
+   ((default (:foreground vk-white :background vk-black :weight 'bold))
     (font-lock-keyword-face (:foreground vk-yellow :weight 'bold))
     (font-lock-constant-face (:foreground vk-green :weight 'bold))
     (font-lock-comment-face (:foreground vk-cyan))
@@ -89,7 +89,7 @@
     (font-lock-function-name-face (:foreground vk-green :slant 'italic))
     (font-lock-variable-name-face (:foreground vk-lt-green :weight 'bold))
     (error (:foreground vk-red))
-     (company-tooltip (:background vk-slate))
+    (company-tooltip (:background vk-slate))
     (company-tooltip-common (:weight 'bold :foreground vk-purple))
     (hl-line (:background vk-slate))
     (region (:background vk-blue ))
@@ -305,3 +305,16 @@ Assumes that the frame is only split into two."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; end for custom-set variables
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   '(tab-jump-out flycheck lsp-ivy lsp-ui lsp-mode ag projectile counsel ivy which-key company autothemer use-package)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
