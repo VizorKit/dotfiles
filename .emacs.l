@@ -1,5 +1,4 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; load-time settings
-;;; code:
 (setq gc-cons-threshold 500000000)
 (setq gc-cons-percentage .8)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -150,9 +149,9 @@
   :defer t)
 (use-package color-identifiers-mode
   :ensure t
-  :defer t
   :config
-  (add-hook 'after-init-hook 'global-color-identifiers-mode))
+  (setq color-identifiers:timer (run-with-idle-timer 2 t 'color-identifiers:refresh))
+  (add-hook 'c-mode-hook 'color-identifiers-mode))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; ide features
