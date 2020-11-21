@@ -21,6 +21,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; basic emacs setup
+(setq mouse-wheel-scroll-amount '(1 ((shift) . 1)))
+(setq mouse-wheel-progressive-speed nil)
+(setq-default smooth-scroll-margin 0)
+(setq scroll-step 1
+      scroll-margin 1
+      scroll-conservatively 100000)
+(setq  fast-but-imprecise-scrolling nil
+ jit-lock-defer-time 0)
 (setq inhibit-startup-message t)
 (setq visible-bell nil)
 (setq ring-bell-function 'ignore)
@@ -30,6 +38,7 @@
 (tool-bar-mode -1)
 (menu-bar-mode -1)
 (scroll-bar-mode -1)
+(show-paren-mode 1)
 (global-hl-line-mode t)
 (setq backup-directory-alist
       `((".*" . ,temporary-file-directory)))
@@ -73,7 +82,7 @@
     (vk-lt-green "light green")
     (vk-yellow "yellow")
     (vk-purple "magenta")
-    (vk-white "ghost white")
+    (vk-white "powder blue")
     (vk-blue "blue")
     (vk-green "green")
     (vk-gray "gray50")
@@ -188,15 +197,6 @@
   (setq flycheck-keymap-prefix (kbd "C-l c"))
   (define-key flycheck-mode-map flycheck-keymap-prefix flycheck-command-map)
   (global-flycheck-mode))
-;;; org-mode
-(use-package org
-  :ensure t
-  :defer t
-  :config
-    (global-set-key (kbd "C-c l") 'org-store-link)
-    (global-set-key (kbd "C-c a") 'org-agenda)
-    (global-set-key (kbd "C-c c") 'org-capture)
-    (setq org-log-done t))
 ;;; tabout!
 (use-package tab-jump-out
   :ensure t
@@ -297,7 +297,7 @@ Assumes that the frame is only split into two."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; profiling & normal gc settings
-(setq gc-cons-threshold 800000)
+(setq gc-cons-threshold 80000)
 (setq gc-cons-percentage .1)
 (add-hook 'emacs-startup-hook
           (lambda ()
