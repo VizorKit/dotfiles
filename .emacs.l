@@ -83,7 +83,7 @@
     (vk-standout "DeepPink4")
     (vk-golden "chocolate")
     (vk-literal "RoyalBlue3")
-    (vk-background "gray70")
+    (vk-background "gray80")
     (vk-visible "peach puff")
     (vk-funcs "dark green")
     (vk-gray "gray50")
@@ -91,7 +91,7 @@
     (vk-highlight "antique white"))
    ((default (:foreground vk-easy-text :weight 'bold :background vk-background :font "Consolas" :height 120))
     (font-lock-keyword-face (:foreground vk-golden))
-    (font-lock-constant-face (:foreground vk-constant))
+    (font-lock-constant-face (:foreground vk-constant :underline t))
     (font-lock-comment-face (:foreground vk-blendin))
     (font-lock-string-face (:foreground vk-literal))
     (font-lock-builtin-face (:foreground vk-standout :slant 'italic))
@@ -180,12 +180,6 @@
   (setq lsp-clients-clangd-args '("-j=4" "-log=error"))
   (add-hook 'after-init-hook 'global-company-mode)
   (lsp-enable-which-key-integration t))
-;;; lsp ui
-(use-package lsp-ui
-  :ensure t
-  :hook (lsp-mode . lsp-ui-mode)
-  :custom
-  (lsp-ui-doc-position 'bottom))
 ;;; lsp-ivy
 (use-package lsp-ivy
   :after ivy
