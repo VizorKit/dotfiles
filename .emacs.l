@@ -27,8 +27,7 @@
 (setq scroll-step 1
       scroll-margin 1
       scroll-conservatively 100000)
-(setq  fast-but-imprecise-scrolling nil
- jit-lock-defer-time 0)
+(setq  fast-but-imprecise-scrolling nil jit-lock-defer-time 0)
 (setq inhibit-startup-message t)
 (setq visible-bell nil)
 (setq ring-bell-function 'ignore)
@@ -67,44 +66,47 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; custom functions binding
 (global-set-key (kbd "C-c t") 'toggle-frame-split)
 (global-set-key (kbd "C-c i") 'delete-between-pair)
+(global-set-key (kbd "C-c k") 'comment-or-uncomment-region)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; packages
-;;; high contrast custom theme
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; packages
+;;; soft contrast custom theme
 (use-package autothemer
   :ensure t
   :init
   (autothemer-deftheme
    chris-theme "A theme."
    ((((class color) (min-colors #xFFFFFF)))
-    (vk-cyan "cyan")
-    (vk-black "black")
-    (vk-lt-green "light green")
-    (vk-yellow "yellow")
-    (vk-purple "magenta")
-    (vk-white "powder blue")
-    (vk-blue "blue")
-    (vk-green "green")
+    (vk-blendin "dark olive green")
+    (vk-constant "dark green")
+    (vk-easy-text "black")
+    (vk-standout "DeepPink4")
+    (vk-golden "chocolate")
+    (vk-literal "RoyalBlue3")
+    (vk-background "gray70")
+    (vk-visible "peach puff")
+    (vk-funcs "dark green")
     (vk-gray "gray50")
-    (vk-red "red")
-    (vk-slate "gray17"))
-   ((default (:foreground vk-white :background vk-black :weight 'bold))
-    (font-lock-keyword-face (:foreground vk-yellow :weight 'bold))
-    (font-lock-constant-face (:foreground vk-green :weight 'bold))
-    (font-lock-comment-face (:foreground vk-cyan))
-    (font-lock-string-face (:foreground vk-purple))
-    (font-lock-builtin-face (:foreground vk-lt-green :slant 'italic))
-    (font-lock-function-name-face (:foreground vk-green :slant 'italic))
-    (font-lock-variable-name-face (:foreground vk-lt-green :weight 'bold))
-    (error (:foreground vk-red))
-    (company-tooltip (:background vk-slate))
-    (company-tooltip-common (:weight 'bold :foreground vk-purple))
-    (hl-line (:background vk-slate))
-    (region (:background vk-blue ))
-    (cursor (:background vk-yellow))))
+    (vk-err "red")
+    (vk-highlight "antique white"))
+   ((default (:foreground vk-easy-text :weight 'bold :background vk-background :font "Consolas" :height 120))
+    (font-lock-keyword-face (:foreground vk-golden))
+    (font-lock-constant-face (:foreground vk-constant))
+    (font-lock-comment-face (:foreground vk-blendin))
+    (font-lock-string-face (:foreground vk-literal))
+    (font-lock-builtin-face (:foreground vk-standout :slant 'italic))
+    (font-lock-function-name-face (:foreground vk-funcs :slant 'italic))
+    (font-lock-variable-name-face (:foreground vk-easy-text))
+    (font-lock-type-face (:foreground vk-standout))
+    (error (:foreground vk-err))
+    (warning (:foreground vk-golden))
+    (company-tooltip (:background vk-highlight))
+    (company-tooltip-common (:foreground vk-literal))
+    (hl-line (:background vk-highlight))
+    (region (:background vk-visible ))
+    (cursor (:background vk-golden))))
   :config
-  (enable-theme 'chris-theme))
-;;; company
+  (enable-theme 'chris-theme));;; company
 (use-package company
   :ensure t
   :hook ((after-init . global-company-mode))
