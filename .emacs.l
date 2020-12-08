@@ -57,6 +57,7 @@
 (global-set-key (kbd "C-q") 'save-buffers-kill-terminal) ;; quit
 (global-set-key (kbd "C-r") 'backward-char) ;; r for reverse f for forward
 (global-set-key (kbd "C-t") 'kill-word-at-point) ;; terminate word at point.
+(global-set-key (kbd "C-;") 'kill-line-at-point) ;; kills statements like c# ; (line get it?)
 ;; prefixes
 (global-set-key (kbd "C-b") ctl-x-map) ;; (buffer-mode) = C-b
 (keyboard-translate ?\C-c ?\C-u) ;; translates (user-mode) = C-u
@@ -77,7 +78,7 @@
   (autothemer-deftheme
    chris-theme "A theme."
    ((((class color) (min-colors #xFFFFFF)))
-    (vk-blendin "dark olive green")
+    (vk-blendin "gray45")
     (vk-constant "dark green")
     (vk-easy-text "black")
     (vk-standout "DeepPink4")
@@ -86,7 +87,6 @@
     (vk-background "gray80")
     (vk-visible "peach puff")
     (vk-funcs "dark green")
-    (vk-gray "gray50")
     (vk-err "red")
     (vk-highlight "antique white"))
    ((default (:foreground vk-easy-text :weight 'bold :background vk-background :font "Consolas" :height 120))
@@ -106,7 +106,8 @@
     (region (:background vk-visible ))
     (cursor (:background vk-golden))))
   :config
-  (enable-theme 'chris-theme));;; company
+  (enable-theme 'chris-theme))
+;;; company
 (use-package company
   :ensure t
   :hook ((after-init . global-company-mode))
@@ -142,7 +143,6 @@
   (global-set-key (kbd "C-h f") 'counsel-describe-function)
   (global-set-key (kbd "C-h v") 'counsel-describe-variable)
   (global-set-key (kbd "C-b f") 'counsel-find-file)
-  (global-set-key (kbd "C-c p a") 'counsel-ag)
   (global-set-key (kbd "M-x") 'counsel-M-x))
 ;;; projectile
 (use-package projectile
@@ -152,12 +152,7 @@
   (setq projectile-project-search-path '("~/source/"))
   (setq projectile-completion-system 'ivy)
   (setq projectile-enable-caching t)
-  (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-  (global-set-key (kbd "C-c p R") 'projectile-replace-regex))
-;;; ag
-(use-package ag
-  :ensure t
-  :defer t)
+  (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map))
 (use-package color-identifiers-mode
   :ensure t
   :config
@@ -290,6 +285,10 @@ Assumes that the frame is only split into two."
   "Kill the word at point."
   (interactive)
   (kill-thing-at-point 'word))
+(defun kill-line-at-point ()
+  "Kill the word at point."
+  (interactive)
+  (kill-thing-at-point 'line))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; profiling & normal gc settings
@@ -305,3 +304,4 @@ Assumes that the frame is only split into two."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; end for custom-set variables
+
