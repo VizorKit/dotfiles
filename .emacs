@@ -21,6 +21,13 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; basic emacs setup
+(setq mouse-wheel-scroll-amount '(1 ((shift) . 1)))
+(setq mouse-wheel-progressive-speed nil)
+(setq-default smooth-scroll-margin 0)
+(setq scroll-step 1
+      scroll-margin 1
+      scroll-conservatively 100000)
+(setq  fast-but-imprecise-scrolling nil jit-lock-defer-time 0)
 (setq inhibit-startup-message t)
 (setq visible-bell nil)
 (setq ring-bell-function 'ignore)
@@ -30,6 +37,7 @@
 (tool-bar-mode -1)
 (menu-bar-mode -1)
 (scroll-bar-mode -1)
+(show-paren-mode 1)
 (global-hl-line-mode t)
 (setq backup-directory-alist
       `((".*" . ,temporary-file-directory)))
@@ -37,8 +45,10 @@
       `((".*" ,temporary-file-directory t)))
 (global-display-line-numbers-mode)
 (setq byte-compile-warnings '(cl-functions))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; basic editor
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; basic editor
 (global-set-key (kbd "C-z") 'undo) ;; undo
 (global-set-key (kbd "C-s") 'save-buffer) ;; save file
@@ -48,7 +58,8 @@
 (global-set-key (kbd "C-u") 'kill-ring-save) ;; copy (will be translated to C-c)
 (global-set-key (kbd "C-q") 'save-buffers-kill-terminal) ;; quit
 (global-set-key (kbd "C-r") 'backward-char) ;; r for reverse f for forward
-(global-set-key (kbd "C-e") 'kill-word) ;; exterminate word from point.
+(global-set-key (kbd "C-t") 'kill-word-at-point) ;; terminate word at point.
+(global-set-key (kbd "C-;") 'kill-line-at-point) ;; kills statements like c# ; (line get it?)
 ;; prefixes
 (global-set-key (kbd "C-b") ctl-x-map) ;; (buffer-mode) = C-b
 (keyboard-translate ?\C-c ?\C-u) ;; translates (user-mode) = C-u
@@ -58,41 +69,44 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; custom functions binding
 (global-set-key (kbd "C-c t") 'toggle-frame-split)
 (global-set-key (kbd "C-c i") 'delete-between-pair)
+(global-set-key (kbd "C-c k") 'comment-or-uncomment-region)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; packages
-;;; high contrast custom theme
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; packages
+;;; soft contrast custom theme
 (use-package autothemer
   :ensure t
   :init
   (autothemer-deftheme
    chris-theme "A theme."
    ((((class color) (min-colors #xFFFFFF)))
-    (vk-cyan "cyan")
-    (vk-black "black")
-    (vk-lt-green "light green")
-    (vk-yellow "yellow")
-    (vk-purple "magenta")
-    (vk-white "ghost white")
-    (vk-blue "blue")
-    (vk-green "green")
-    (vk-gray "gray50")
-    (vk-red "red")
-    (vk-slate "gray17"))
-   ((default (:foreground vk-white :background vk-black))
-    (font-lock-keyword-face (:foreground vk-yellow :weight 'bold))
-    (font-lock-constant-face (:foreground vk-green :weight 'bold))
-    (font-lock-comment-face (:foreground vk-cyan))
-    (font-lock-string-face (:foreground vk-purple))
-    (font-lock-builtin-face (:foreground vk-lt-green :slant 'italic))
-    (font-lock-function-name-face (:foreground vk-green :slant 'italic))
-    (font-lock-variable-name-face (:foreground vk-lt-green :weight 'bold))
-    (error (:foreground vk-red))
-     (company-tooltip (:background vk-slate))
-    (company-tooltip-common (:weight 'bold :foreground vk-purple))
-    (hl-line (:background vk-slate))
-    (region (:background vk-blue ))
-    (cursor (:background vk-yellow))))
+    (vk-blendin "gray45")
+    (vk-constant "dark green")
+    (vk-easy-text "black")
+    (vk-standout "DeepPink4")
+    (vk-golden "chocolate")
+    (vk-literal "RoyalBlue3")
+    (vk-background "gray80")
+    (vk-visible "peach puff")
+    (vk-funcs "dark green")
+    (vk-err "red")
+    (vk-highlight "antique white"))
+   ((default (:foreground vk-easy-text :weight 'bold :background vk-background :font "Consolas" :height 120))
+    (font-lock-keyword-face (:foreground vk-golden))
+    (font-lock-constant-face (:foreground vk-constant :underline t))
+    (font-lock-comment-face (:foreground vk-blendin))
+    (font-lock-string-face (:foreground vk-literal))
+    (font-lock-builtin-face (:foreground vk-standout :slant 'italic))
+    (font-lock-function-name-face (:foreground vk-funcs :slant 'italic))
+    (font-lock-variable-name-face (:foreground vk-easy-text))
+    (font-lock-type-face (:foreground vk-standout))
+    (error (:foreground vk-err))
+    (warning (:foreground vk-golden))
+    (company-tooltip (:background vk-highlight))
+    (company-tooltip-common (:foreground vk-literal))
+    (hl-line (:background vk-highlight))
+    (region (:background vk-visible ))
+    (cursor (:background vk-golden))))
   :config
   (enable-theme 'chris-theme))
 ;;; company
@@ -131,7 +145,6 @@
   (global-set-key (kbd "C-h f") 'counsel-describe-function)
   (global-set-key (kbd "C-h v") 'counsel-describe-variable)
   (global-set-key (kbd "C-b f") 'counsel-find-file)
-  (global-set-key (kbd "C-c p a") 'counsel-ag)
   (global-set-key (kbd "M-x") 'counsel-M-x))
 ;;; projectile
 (use-package projectile
@@ -141,17 +154,12 @@
   (setq projectile-project-search-path '("~/source/"))
   (setq projectile-completion-system 'ivy)
   (setq projectile-enable-caching t)
-  (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-  (global-set-key (kbd "C-c p R") 'projectile-replace-regex))
-;;; ag
-(use-package ag
-  :ensure t
-  :defer t)
-;;; neotree
-(use-package neotree
+  (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map))
+(use-package color-identifiers-mode
   :ensure t
   :config
-  (global-set-key (kbd "C-c n") 'neotree-toggle))
+  (setq color-identifiers:timer (run-with-idle-timer 2 t 'color-identifiers:refresh))
+  (add-hook 'c-mode-hook 'color-identifiers-mode))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; ide features
@@ -177,21 +185,10 @@
 	 (html-mode . lsp))
   :config
   (setq typescript-indent-level 2))
-;;; rust mode
-(use-package rust-mode
-  :hook (rust-mode . lsp)
-  :ensure t
-  :config
-  (add-hook 'rust-mode-hook
-            (lambda () (setq indent-tabs-mode nil)))
-  (setq rust-format-on-save t))
-;;; flycheck rust
-(use-package flycheck-rust
-  :ensure t
-  :hook (flycheck-mode . flycheck-rust-setup))
 ;;; csharp-mode
 (use-package csharp-mode
   :ensure t
+  :hook ((csharp-mode . lsp))
   :defer t)
 ;;; omnisharp
 (use-package omnisharp
@@ -205,12 +202,6 @@
 			  (setq truncate-lines t))))
   :config
   (eval-after-load 'company '(add-to-list 'company-backends 'company-omnisharp)))
-;;; lsp ui
-(use-package lsp-ui
-  :ensure t
-  :hook (lsp-mode . lsp-ui-mode)
-  :custom
-  (lsp-ui-doc-position 'bottom))
 ;;; lsp-ivy
 (use-package lsp-ivy
   :after ivy
@@ -224,15 +215,6 @@
   (setq flycheck-keymap-prefix (kbd "C-l c"))
   (define-key flycheck-mode-map flycheck-keymap-prefix flycheck-command-map)
   (global-flycheck-mode))
-;;; org-mode
-(use-package org
-  :ensure t
-  :defer t
-  :config
-    (global-set-key (kbd "C-c l") 'org-store-link)
-    (global-set-key (kbd "C-c a") 'org-agenda)
-    (global-set-key (kbd "C-c c") 'org-capture)
-    (setq org-log-done t))
 ;;; tabout!
 (use-package tab-jump-out
   :ensure t
@@ -258,7 +240,7 @@ Assumes that the frame is only split into two."
       (switch-to-buffer nil)))
 ;;; delete inbetween
 (defun seek-backward-to-char (chr)
-  "Seek backwards to a character."
+  "Seek backwards to a CHR."
   (interactive "cSeek back to char: ")
   (while (not (= (char-after) chr))
     (forward-char -1)))
@@ -271,6 +253,7 @@ Assumes that the frame is only split into two."
                 ( ?\{ . ?\} )
                 ( ?<  . ?>  )))
 (defun get-char-pair (chr)
+  "Get the pair of CHR from list."
   (let ((result ()))
     (dolist (x char-pairs)
       (setq start (car x))
@@ -279,10 +262,13 @@ Assumes that the frame is only split into two."
                 (setq result x)))
     result))
 (defun get-start-char (chr)
+  "Get the start CHR."
   (car (get-char-pair chr)))
 (defun get-end-char (chr)
+  "Get the end CHR."
   (cdr (get-char-pair chr)))
 (defun seek-to-matching-char (start end count)
+  "START char to END char, return COUNT."
   (while (> count 0)
     (if (= (following-char) end)
                 (setq count (- count 1))
@@ -290,6 +276,7 @@ Assumes that the frame is only split into two."
                   (setq count (+ count 1))))
     (forward-char 1)))
 (defun seek-backward-to-matching-char (start end count)
+  "START char to END char, return COUNT."
   (if (= (following-char) end)
       (forward-char -1))
   (while (> count 0)
@@ -300,7 +287,7 @@ Assumes that the frame is only split into two."
     (if (> count 0)
                 (forward-char -1))))
 (defun delete-between-pair (char)
-  "Delete in between the given pair"
+  "Delete in between the given pair of CHAR."
   (interactive "cDelete between char: ")
   (seek-backward-to-matching-char (get-start-char char) (get-end-char char) 1)
   (forward-char 1)
@@ -309,17 +296,31 @@ Assumes that the frame is only split into two."
   (forward-char -1)
   (kill-region mark (point)))
 (defun delete-all-pair (char)
-  "Delete in between the given pair and the characters"
-  (interactive "cDelete all char: ")
+  "Delete in between the given pair and the CHAR."
+  (interactive "cDelete all CHAR: ")
   (seek-backward-to-matching-char (get-start-char char) (get-end-char char) 1)
   (setq mark (point))
   (forward-char 1)
   (seek-to-matching-char (get-start-char char) (get-end-char char) 1)
   (kill-region mark (point)))
+(defun kill-thing-at-point (thing)
+  "Kill the THING at point."
+  (let ((bounds (bounds-of-thing-at-point thing)))
+    (if bounds
+        (kill-region (car bounds) (cdr bounds))
+      (error "No %s at point" thing))))
+(defun kill-word-at-point ()
+  "Kill the word at point."
+  (interactive)
+  (kill-thing-at-point 'word))
+(defun kill-line-at-point ()
+  "Kill the word at point."
+  (interactive)
+  (kill-thing-at-point 'line))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; profiling & normal gc settings
-(setq gc-cons-threshold 800000)
+(setq gc-cons-threshold 80000)
 (setq gc-cons-percentage .1)
 (add-hook 'emacs-startup-hook
           (lambda ()
