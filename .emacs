@@ -70,6 +70,7 @@
 (global-set-key (kbd "C-c t") 'toggle-frame-split)
 (global-set-key (kbd "C-c i") 'delete-between-pair)
 (global-set-key (kbd "C-c k") 'comment-or-uncomment-region)
+(global-set-key (kbd "C-c .") 'query-replace-from-top)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; packages
@@ -185,6 +186,14 @@
 	 (html-mode . lsp))
   :config
   (setq typescript-indent-level 2))
+;;; tide
+(use-package tide
+  :ensure t
+  :defer t
+  :after (typescript-mode company flycheck)
+  :hook ((typescript-mode . tide-setup)
+         (typescript-mode . tide-hl-identifier-mode)
+         (before-save . tide-format-before-save)))
 ;;; csharp-mode
 (use-package csharp-mode
   :ensure t
@@ -317,6 +326,15 @@ Assumes that the frame is only split into two."
   "Kill the word at point."
   (interactive)
   (kill-thing-at-point 'line))
+(defun query-replace-from-top ()
+  "Move to top of buffer to search."
+  (interactive)
+  (let ((orig-point (point)))
+    (save-excursion
+      (goto-char (point-min))
+      (call-interactively 'query-replace))
+    (message "Back to old point.")
+    (goto-char orig-point)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; profiling & normal gc settings
