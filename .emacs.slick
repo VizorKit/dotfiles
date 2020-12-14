@@ -72,7 +72,6 @@
 (global-set-key (kbd "C-c i") 'delete-between-pair)
 (global-set-key (kbd "C-c k") 'comment-or-uncomment-region)
 (global-set-key (kbd "C-c .") 'query-replace-from-top)
-(global-set-key (kbd "C-c m") 'toggle-theme)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; packages
@@ -303,7 +302,7 @@ Assumes that the frame is only split into two."
   "Critical."
   :type 'color
   :group 'nano)
-(defcustom nano-color-italic (nano-base-colors--get 'italic)
+(defcustom nano-color-italics (nano-base-colors--get 'italics)
   "Italic."
   :type 'color
   :group 'nano)
@@ -452,11 +451,9 @@ Assumes that the frame is only split into two."
     (if (and cnode (not (equal cnode "Top")))
         (setq line (concat line (if (null line) "" " > ") cnode)))
     line))
-
 (defun nano-modeline-info-mode-p ()
   "Info mode."
   (derived-mode-p 'Info-mode))
-
 (defun nano-modeline-info-mode ()
   "Builds compose for infomode."
   (nano-modeline-compose (nano-modeline-status)
@@ -546,7 +543,7 @@ Assumes that the frame is only split into two."
 (defface nano-face-strong nil
   "Strong color"
   :group 'nano)
-(defface nano-face-italic nil
+(defface nano-face-italics nil
   "Italic option."
   :group 'nano)
 (defface nano-face-salient nil
@@ -628,7 +625,6 @@ Assumes that the frame is only split into two."
                       :background nano-color-critical)
   (set-face-attribute 'nano-face-popout nil
                       :foreground nano-color-popout)
-
   (if (display-graphic-p)
       (set-face-attribute 'nano-face-strong nil
                           :foreground (face-foreground 'nano-face-default)
@@ -637,34 +633,28 @@ Assumes that the frame is only split into two."
     (set-face-attribute 'nano-face-strong nil
                         :foreground (face-foreground 'nano-face-default)
                         :weight 'bold))
-
   (set-face-attribute 'nano-face-salient nil
                       :foreground nano-color-salient
                       :weight 'bold)
-
   (set-face-attribute 'nano-face-faded nil
                       :foreground nano-color-faded
                       :weight 'bold)
-
   (set-face-attribute 'nano-face-subtle nil
                       :background nano-color-subtle)
-
   (set-face-attribute 'nano-face-header-default nil
                       :foreground nano-color-foreground
                       :background nano-color-subtle
                       :box `(:line-width 1
                                          :color ,nano-color-background
                                          :style nil))
-
   (set-face-attribute 'nano-face-tag-default nil
                       :foreground nano-color-foreground
                       :background nano-color-background
                       :family "Consolas" :weight 'bold
-                      :height (if (display-graphic-p) 120 1)
+                      :height (if (display-graphic-p) 130 1)
                       :box `(:line-width 1
                                          :color ,nano-color-foreground
                                          :style nil))
-
   (set-face-attribute 'nano-face-header-strong nil
                       :foreground nano-color-strong
                       :background nano-color-subtle
@@ -672,20 +662,19 @@ Assumes that the frame is only split into two."
                       :box `(:line-width 1
                                          :color ,nano-color-background
                                          :style nil))
-
   (set-face-attribute 'nano-face-tag-strong nil
                       :foreground nano-color-strong
                       :background nano-color-subtle
                       :family "Consolas" :weight 'bold
-                      :height (if (display-graphic-p) 120 1)
+                      :height (if (display-graphic-p) 130 1)
                       :box `(:line-width 1
                                          :color ,nano-color-strong
                                          :style nil))
-  (set-face-attribute 'nano-face-italic nil
-		      :foreground nano-color-foreground
+  (set-face-attribute 'nano-face-italics nil
+		      :foreground nano-color-italics
 		      :background nano-color-background
 		      :family "Consolas" :weight 'bold :slant 'italic
-		      :height (if (display-graphic-p) 120 1)
+		      :height (if (display-graphic-p) 130 1)
                       :box `(:line-width 1
                                          :color ,nano-color-background
                                          :style nil))
@@ -695,50 +684,43 @@ Assumes that the frame is only split into two."
                       :box `(:line-width 1
                                          :color ,nano-color-background
                                          :style nil))
-
   (set-face-attribute 'nano-face-tag-salient nil
                       :foreground nano-color-background
                       :background nano-color-salient
                       :family "Consolas" :weight 'bold
-                      :height (if (display-graphic-p) 120 1)
+                      :height (if (display-graphic-p) 130 1)
                       :box `(:line-width 1
                                          :color ,nano-color-salient
                                          :style nil))
-
   (set-face-attribute 'nano-face-header-popout nil
                       :foreground nano-color-background
                       :background nano-color-popout
                       :box `(:line-width 1
                                          :color ,nano-color-background
                                          :style nil))
-
   (set-face-attribute 'nano-face-tag-popout nil
                       :foreground nano-color-background
                       :background nano-color-popout
                       :family "Consolas" :weight 'bold
-                      :height (if (display-graphic-p) 120 1)
+                      :height (if (display-graphic-p) 130 1)
                       :box `(:line-width 1
                                          :color ,nano-color-popout
                                          :style nil))
-
   (set-face-attribute 'nano-face-header-faded nil
                       :foreground nano-color-background
                       :background nano-color-faded
                       :box `(:line-width 1
                                          :color ,nano-color-background
                                          :style nil))
-
   (set-face-attribute 'nano-face-tag-faded nil
                       :foreground nano-color-background
                       :background nano-color-faded
                       :family "Consolas" :weight 'bold
-                      :height (if (display-graphic-p) 120 1)
+                      :height (if (display-graphic-p) 130 1)
                       :box `(:line-width 1
                                          :color ,nano-color-faded
                                          :style nil))
-
   (set-face-attribute 'nano-face-header-subtle nil)
-
   (set-face-attribute 'nano-face-header-critical nil
                       :foreground nano-color-background
                       :background nano-color-critical
@@ -749,11 +731,10 @@ Assumes that the frame is only split into two."
                       :foreground nano-color-background
                       :background nano-color-critical
                       :family "Consolas" :weight 'bold
-                      :height (if (display-graphic-p) 120 1)
+                      :height (if (display-graphic-p) 130 1)
                       :box `(:line-width 1
                                          :color ,nano-color-critical
                                          :style nil))
-
   (set-face-attribute 'nano-face-header-separator nil
                       :inherit 'nano-face-default
                       :height 0.1)
@@ -787,7 +768,6 @@ Assumes that the frame is only split into two."
   (set-face 'fixed-pitch-serif                       'nano-face-default)
   (set-face 'variable-pitch                          'nano-face-default)
   (set-face 'cursor                                  'nano-face-default)
-
   (set-face-attribute 'cursor nil
                       :background (face-foreground 'nano-face-default))
   (set-face-attribute 'window-divider nil
@@ -796,14 +776,12 @@ Assumes that the frame is only split into two."
                       :foreground nano-color-highlight)
   (set-face-attribute 'window-divider-last-pixel nil
                       :foreground nano-color-highlight)
-
   ;; Semantic
   (set-face 'shadow                                    'nano-face-faded)
   (set-face 'success                                 'nano-face-salient)
   (set-face 'warning                                  'nano-face-popout)
   (set-face 'error                                  'nano-face-critical)
   (set-face 'match                                    'nano-face-popout)
-
   ;; General
   (set-face 'buffer-menu-buffer                       'nano-face-strong)
   (set-face 'minibuffer-prompt                        'nano-face-strong)
@@ -822,8 +800,6 @@ Assumes that the frame is only split into two."
   (set-face 'secondary-selection                      'nano-face-subtle)
   (set-face 'completions-common-part                   'nano-face-faded)
   (set-face 'completions-first-difference            'nano-face-default))
-
-
 (defun nano-theme--font-lock ()
   "Derive font-lock faces from nano-faces."
   (set-face 'font-lock-comment-face                    'nano-face-faded)
@@ -831,13 +807,12 @@ Assumes that the frame is only split into two."
   (set-face 'font-lock-string-face                    'nano-face-popout)
   (set-face 'font-lock-constant-face                 'nano-face-salient)
   (set-face 'font-lock-warning-face                   'nano-face-popout)
-  (set-face 'font-lock-function-name-face             'nano-face-strong-italic)
+  (set-face 'font-lock-function-name-face             'nano-face-italics)
   (set-face 'font-lock-variable-name-face             'nano-face-strong)
-  (set-face 'font-lock-builtin-face                  'nano-face-salient)
+  (set-face 'font-lock-builtin-face                  'nano-face-italics)
   (set-face 'font-lock-type-face                     'nano-face-salient)
   (set-face 'font-lock-keyword-face                  'nano-face-salient)
   (set-face 'font-lock-preprocessor-face             'nano-face-popout))
-
 (defun nano-theme--mode-line ()
   "Derive mode-line and header-line faces from nano-faces."
   (set-face-attribute 'mode-line nil
@@ -860,7 +835,6 @@ Assumes that the frame is only split into two."
                        :weight 'bold
                        :foreground (face-foreground 'nano-face-default)
                        :background (face-background 'nano-face-default)
-
                        :overline nil
                        :underline nil
                        :box nil
@@ -868,10 +842,8 @@ Assumes that the frame is only split into two."
                                           :color ,(face-background 'nano-face-default)
                                           :style nil)
                        :inherit nil)
-
   (set-face-attribute 'internal-border nil
                        :background (face-background 'nano-face-default)))
-
 (defun nano-theme--minibuffer ()
   "Derive minibuffer / echo area faces from nano faces."
   ;; Minibuffer / echo area
@@ -1075,30 +1047,18 @@ Assumes that the frame is only split into two."
   (nano-theme--term)
   (nano-theme--ivy)
   (nano-theme--hl-line))
-
 ;; Colors from Material design at https://material.io/
 (setq frame-background-mode    'light)
-(setq nano-color-foreground "#37474F") ;; Blue Grey / L800
-(setq nano-color-background "#FFFFFF") ;; White
-(setq nano-color-highlight  "#FAFAFA") ;; Very Light Grey
-(setq nano-color-critical   "#FF6F00") ;; Amber / L900
-(setq nano-color-salient    "#673AB7") ;; Deep Purple / L500
-(setq nano-color-italic     "dark green")
+(setq nano-color-foreground "#37474F") ;; Blue Grey
+(setq nano-color-background "#F1F1F1") ;; Light Gray
+(setq nano-color-highlight  "#FFFFFF") ;; White
+(setq nano-color-critical   "#FF3333") ;; Red
+(setq nano-color-salient    "#673AB7") ;; Deep Purple
+(setq nano-color-italics    "#7B1113") ;; Maroon
 (setq nano-color-strong     "#000000") ;; Black
-(setq nano-color-popout     "chocolate") ;; Deep Orange / L200
-(setq nano-color-subtle     "#ECEFF1") ;; Blue Grey / L50
-(setq nano-color-faded      "gray60") ;; Blue Grey / L200
-
-;;; still working out how this would work
-(defun toggle-theme ()
-  "Switch between light and dark mode."
-  (interactive)
-  (setq frame-background-mode 'dark)
-  (setq local-temp nano-color-strong)
-  (setq nano-color-strong nano-color-background)
-  (setq nano-color-background local-temp)
-  (eval-buffer))
-
+(setq nano-color-popout     "#FF6F00") ;; Deep Orange
+(setq nano-color-subtle     "#D7D7D7") ;; Grey
+(setq nano-color-faded      "#979797") ;; Dark Grey
 (nano-faces)
 (nano-theme)
 
