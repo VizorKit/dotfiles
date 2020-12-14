@@ -1,0 +1,876 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; load-time settings
+(setq gc-cons-threshold 500000000)
+(setq gc-cons-percentage .8)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; basic emacs setup
+(setq mouse-wheel-scroll-amount '(1 ((shift) . 1)))
+(setq mouse-wheel-progressive-speed nil)
+(setq-default smooth-scroll-margin 0)
+(setq scroll-step 1
+      scroll-margin 1
+      scroll-conservatively 100000)
+(setq fast-but-imprecise-scrolling nil jit-lock-defer-time 0)
+(setq inhibit-startup-message t)
+(setq visible-bell nil)
+(setq ring-bell-function 'ignore)
+(setq inhibit-splash-screen t)
+(electric-pair-local-mode 1)
+(electric-pair-mode 1)
+(tool-bar-mode -1)
+(menu-bar-mode -1)
+(scroll-bar-mode -1)
+(show-paren-mode 1)
+(global-hl-line-mode t)
+(setq backup-directory-alist
+      `((".*" . ,temporary-file-directory)))
+(setq auto-save-file-name-transforms
+      `((".*" ,temporary-file-directory t)))
+(global-display-line-numbers-mode)
+(setq window-divider-default-right-width 24)
+(setq window-divider-default-places 'right-only)
+(window-divider-mode 1)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; nano copied and modified section
+(defgroup nano '()
+  "Faces and colors for the nano emacs theme")
+(defvar nano-base-colors--defaults
+  `((foreground . ,(face-foreground 'default nil t))
+    (background . ,(face-background 'default nil t))
+    (highlight . ,(face-background 'fringe nil t))
+    (critical . ,(face-foreground 'error nil t))
+    (salient . ,(face-foreground 'font-lock-keyword-face nil t))
+    (strong . ,(face-foreground 'default nil t))
+    (popout . ,(face-foreground 'font-lock-string-face nil t))
+    (subtle . ,(face-background 'mode-line-inactive nil t))
+    (faded . ,(face-foreground 'shadow nil t))))
+(defun nano-base-colors--get (name)
+  "Get default color associated with symbol NAME."
+  (cdr (assoc name nano-base-colors--defaults)))
+(defcustom nano-color-foreground (nano-base-colors--get 'foreground)
+  "Foreground."
+  :type 'color
+  :group 'nano)
+(defcustom nano-color-background (nano-base-colors--get 'background)
+  "Background."
+  :type 'color
+  :group 'nano)
+(defcustom nano-color-highlight (nano-base-colors--get 'highlight)
+  "Highlight."
+  :type 'color
+  :group 'nano)
+(defcustom nano-color-critical (nano-base-colors--get 'critical)
+  "Critical."
+  :type 'color
+  :group 'nano)
+(defcustom nano-color-italic (nano-base-colors--get 'italic)
+  "Italic."
+  :type 'color
+  :group 'nano)
+(defcustom nano-color-salient (nano-base-colors--get 'salient)
+  "Salient."
+  :type 'color
+  :group 'nano)
+(defcustom nano-color-strong (nano-base-colors--get 'strong)
+  "Strong."
+  :type 'color
+  :group 'nano)
+(defcustom nano-color-popout (nano-base-colors--get 'popout)
+  "Popout."
+  :type 'color
+  :group 'nano)
+(defcustom nano-color-subtle (nano-base-colors--get 'subtle)
+  "Subtle."
+  :type 'color
+  :group 'nano)
+(defcustom nano-color-faded (nano-base-colors--get 'faded)
+  "Faded."
+  :type 'color
+  :group 'nano)
+(defun vc-branch ()
+  "Does something with Version Control."
+  (if vc-mode
+      (let ((backend (vc-backend buffer-file-name)))
+        (concat "#" (substring-no-properties vc-mode
+                                 (+ (if (eq backend 'Hg) 2 3) 2))))  nil))
+(defun shorten-directory (dir max-length)
+  "Show up to MAX-LENGTH characters of a directory name DIR."
+  (let ((path (reverse (split-string (abbreviate-file-name dir) "/")))
+        (output ""))
+    (when (and path (equal "" (car path)))
+      (setq path (cdr path)))
+    (while (and path (< (length output) (- max-length 4)))
+      (setq output (concat (car path) "/" output))
+      (setq path (cdr path)))
+    (when path
+      (setq output (concat "…/" output)))
+    output))
+(defun nano-modeline-make-action (symbol function)
+  "Modeline actions SYMBOL and FUNCTION."
+  (let ((map (make-sparse-keymap)))
+    (define-key map [header-line mouse-1] function)
+    (propertize (format " %s " symbol)
+		'keymap map
+		'face       'nano-face-header-default
+		'pointer 'hand
+		)))
+(defun nano-modeline-default-actions ()
+  "Default action."
+  (let* ((window    (get-buffer-window (current-buffer)))
+         (term-mode (not (display-graphic-p)))
+         (dedicated (window-dedicated-p window)))
+    (cond ;;(term-mode '())
+          (dedicated '(("•" . nano-modeline-action-unset-dedicated)))
+          (t         '(("<" . nano-modeline-action-prev-buffer)
+	               (">" . nano-modeline-action-next-buffer))))))
+(defun nano-modeline-action-prev-buffer ()
+  "Previous Buffer."
+  (interactive)
+  (previous-buffer))
+(defun nano-modeline-action-next-buffer ()
+  "Next Buffer."
+  (interactive)
+  (next-buffer))
+(defun nano-modeline-action-unset-dedicated ()
+  "Unsets something."
+  (interactive)
+  (set-window-dedicated-p (get-buffer-window (current-buffer)) nil))
+(defun nano-modeline-compose (status name primary secondary &optional actions)
+  "Compose a string with provided information and STATUS NAME PRIMARY SECONDARY OPTIONAL ACTIONS."
+  (let* ((char-width    (window-font-width nil 'header-line))
+         (window        (get-buffer-window (current-buffer)))
+	 (actions       (or actions (nano-modeline-default-actions)))
+	 (actions-length (apply '+ (mapcar 'length (mapcar 'car actions))))
+	 (filler        (make-string
+			 (max 0 (- char-width 2 (length actions))) ?\ ))
+         (space-up       +0.15)
+         (space-down     -0.05)
+	 (gui            (display-graphic-p))
+	 (prefix (cond ((string= status "RO")
+			(propertize " RO " 'face 'nano-face-header-popout))
+                       ((string= status "**")
+			(propertize " ** " 'face 'nano-face-header-critical))
+                       ((string= status "RW")
+			(propertize " RW " 'face 'nano-face-header-faded))
+                       (t (propertize status 'face 'nano-face-header-popout))))
+         (left (concat
+                (propertize " "  'face 'nano-face-header-default
+			         'display `(raise ,space-up))
+                (propertize name 'face 'nano-face-header-strong)
+                (propertize " "  'face 'nano-face-header-default
+			         'display `(raise ,space-down))
+		(propertize primary 'face 'nano-face-header-default)))
+         (right (concat secondary " "))
+         (available-width (- (window-total-width) 1
+			     (* 2 (length actions)) actions-length
+			     (length prefix) (length left) (length right)
+			     (/ (window-right-divider-width) char-width)))
+	 (available-width (max 1 available-width)))
+    (concat prefix
+	    (if gui
+		(propertize " " 'face 'nano-face-header-separator))
+	    left
+	    (propertize (make-string available-width ?\ ) 'face 'nano-face-header-default)
+	    (if gui
+		(propertize filler 'face 'nano-face-header-filler)
+	      (propertize " " 'face 'nano-face-header-filler))
+	    (propertize right 'face 'nano-face-header-default)
+	    (if gui
+		(propertize " "   'face 'nano-face-header-separator))
+	    (mapconcat (lambda (action)
+			 (nano-modeline-make-action (car action) (cdr action)))
+		       actions
+		       (if gui
+			   (propertize " " 'face 'nano-face-header-separator)
+			 "")))))
+(setq Info-use-header-line nil)
+(defun nano-modeline-info-breadcrumbs ()
+  "Show Breadcrumbs."
+  (let ((nodes (Info-toc-nodes Info-current-file))
+        (cnode Info-current-node)
+	(node Info-current-node)
+        (crumbs ())
+        (depth Info-breadcrumbs-depth)
+	line)
+    (while  (> depth 0)
+      (setq node (nth 1 (assoc node nodes)))
+      (if node (push node crumbs))
+      (setq depth (1- depth)))
+    (setq crumbs (cons "Top" (if (member (pop crumbs) '(nil "Top"))
+			         crumbs (cons nil crumbs))))
+    (forward-line 1)
+    (dolist (node crumbs)
+      (let ((text
+	     (if (not (equal node "Top")) node
+	       (format "%s"
+		       (if (stringp Info-current-file)
+			   (file-name-sans-extension
+			    (file-name-nondirectory Info-current-file))
+			 Info-current-file)))))
+	(setq line (concat line (if (null line) "" " > ")
+                                (if (null node) "..." text)))))
+    (if (and cnode (not (equal cnode "Top")))
+        (setq line (concat line (if (null line) "" " > ") cnode)))
+    line))
+
+(defun nano-modeline-info-mode-p ()
+  "Info mode."
+  (derived-mode-p 'Info-mode))
+
+(defun nano-modeline-info-mode ()
+  "Builds compose for infomode."
+  (nano-modeline-compose (nano-modeline-status)
+                         "Info"
+                         (concat "("
+                                 (nano-modeline-info-breadcrumbs)
+                                 ")")
+                         ""))
+(defun nano-modeline-term-mode-p ()
+  "Term mode."
+  (derived-mode-p 'term-mode))
+(defun nano-modeline-term-mode ()
+  "Build compose for term mode."
+  (nano-modeline-compose " >_ "
+                         "Terminal"
+                         (concat "(" shell-file-name ")")
+                         (shorten-directory default-directory 32)))
+(defun buffer-menu-mode-header-line ()
+  "Header line."
+  (face-remap-add-relative
+   'header-line `(:background ,(face-background 'nano-face-subtle))))
+(add-hook 'Buffer-menu-mode-hook
+          #'buffer-menu-mode-header-line)
+(defun nano-modeline-completion-list-mode-p ()
+  "Completion list for modeline."
+  (derived-mode-p 'completion-list-mode))
+(defun nano-modeline-completion-list-mode ()
+  "Compose buffer for modeline."
+    (let ((buffer-name (format-mode-line "%b"))
+          (mode-name   (format-mode-line "%m"))
+          (position    (format-mode-line "%l:%c")))
+      (nano-modeline-compose (nano-modeline-status)
+                             buffer-name "" position)))
+(defun nano-modeline-default-mode ()
+  "Defaut mode for modeline."
+    (let ((buffer-name (format-mode-line "%b"))
+          (mode-name   (format-mode-line "%m"))
+          (branch      (vc-branch))
+          (position    (format-mode-line "%l:%c")))
+      (nano-modeline-compose (nano-modeline-status)
+                             buffer-name
+                             (concat "(" mode-name
+                                     (if branch (concat ", "
+                                            (propertize branch 'face 'italic)))
+                                     ")" )
+                             position)))
+(defun nano-modeline-status ()
+  "Return buffer status: read-only (RO), modified (**) or read-write (RW)."
+  (let ((read-only   buffer-read-only)
+        (modified    (and buffer-file-name (buffer-modified-p))))
+    (cond (modified  "**") (read-only "RO") (t "RW"))))
+(defun nano-modeline ()
+  "Install a header line whose content is dependend on the major mode."
+  (interactive)
+  (setq-default header-line-format
+  '((:eval
+     (cond
+                 ((nano-modeline-info-mode-p)            (nano-modeline-info-mode))
+           ((nano-modeline-term-mode-p)            (nano-modeline-term-mode))
+	   ((nano-modeline-completion-list-mode-p) (nano-modeline-completion-list-mode))
+           (t                                      (nano-modeline-default-mode)))))))
+(defun nano-modeline-update-windows ()
+  "Modify the mode line depending on the presence of a window below."
+  (dolist (window (window-list))
+    (with-selected-window window
+      (if (or (one-window-p t)
+	      (eq (window-in-direction 'below) (minibuffer-window))
+	      (not (window-in-direction 'below)))
+	      (with-current-buffer (window-buffer window)
+	        (setq mode-line-format "%-"))
+	    (with-current-buffer (window-buffer window)
+ 	      (setq mode-line-format nil)))
+      )))
+(add-hook 'window-configuration-change-hook 'nano-modeline-update-windows)
+(setq eshell-status-in-modeline nil)
+(setq-default mode-line-format "%-")
+(nano-modeline)
+(defface nano-face-default nil
+  "Default face is used for regular information."
+  :group 'nano)
+(defface nano-face-critical nil
+  "Critical things only"
+  :group 'nano)
+(defface nano-face-popout nil
+  "Stands out just a bit"
+  :group 'nano)
+(defface nano-face-strong nil
+  "Strong color"
+  :group 'nano)
+(defface nano-face-italic nil
+  "Italic option."
+  :group 'nano)
+(defface nano-face-salient nil
+  "Clear intention"
+  :group 'nano)
+(defface nano-face-faded nil
+  "Background/unimportant"
+  :group 'nano)
+(defface nano-face-subtle nil
+  "Not really sure how subtle and faded should differ"
+  :group 'nano)
+(defface nano-face-header-default nil
+  "Default face for ther header line."
+  :group 'nano)
+(defface nano-face-header-critical nil
+  "Critical face for ther header line."
+  :group 'nano)
+(defface nano-face-header-popout nil
+  "Popout face for ther header line."
+  :group 'nano)
+(defface nano-face-header-strong nil
+  "Strong face for ther header line."
+  :group 'nano)
+(defface nano-face-header-salient nil
+  "Salient face for ther header line."
+  :group 'nano)
+(defface nano-face-header-faded nil
+  "Faded face for ther header line."
+  :group 'nano)
+(defface nano-face-header-subtle nil
+  "Subtle face for ther header line."
+  :group 'nano)
+(defface nano-face-header-highlight nil
+  "Highlight face for ther header line."
+  :group 'nano)
+(defface nano-face-header-separator nil
+  "Face for separating item in the header line (internal use)"
+  :group 'nano)
+(defface nano-face-header-filler nil
+  "Face compsenting spaces in the header line (internal use) "
+  :group 'nano)
+(defface nano-face-tag-default nil
+  "Default face for tags"
+  :group 'nano)
+(defface nano-face-tag-faded nil
+  "Faded face for tags"
+  :group 'nano)
+(defface nano-face-tag-strong nil
+  "Strong face for tags"
+  :group 'nano)
+(defface nano-face-tag-salient nil
+  "Salient face for tags"
+  :group 'nano)
+(defface nano-face-tag-popout nil
+  "Popout face for tags"
+  :group 'nano)
+(defface nano-face-tag-critical nil
+  "Critical face for tags"
+  :group 'nano)
+(defun nano-what-faces (pos)
+  "Get the font faces at POS."
+  (interactive "d")
+  (let ((faces (remq nil
+                     (list
+                      (get-char-property pos 'read-face-name)
+                      (get-char-property pos 'face)
+                      (plist-get (text-properties-at pos) 'face)))))
+    (message "Faces: %s" faces)))
+(defun nano-faces ()
+  "Derive face attributes for nano-faces using nano-theme values."
+  (set-face-attribute 'default nil
+                      :foreground nano-color-foreground
+                      :background nano-color-background :weight 'bold :family "Consolas" :height 130)
+  (set-face-attribute 'nano-face-default nil
+                      :foreground nano-color-foreground
+                      :background nano-color-background :weight 'bold :family "Consolas" :height 130)
+  (set-face-attribute 'nano-face-critical nil
+                      :foreground nano-color-foreground
+                      :background nano-color-critical)
+  (set-face-attribute 'nano-face-popout nil
+                      :foreground nano-color-popout)
+
+  (if (display-graphic-p)
+      (set-face-attribute 'nano-face-strong nil
+                          :foreground (face-foreground 'nano-face-default)
+                          :family "Consolas"
+                          :weight 'bold)
+    (set-face-attribute 'nano-face-strong nil
+                        :foreground (face-foreground 'nano-face-default)
+                        :weight 'bold))
+
+  (set-face-attribute 'nano-face-salient nil
+                      :foreground nano-color-salient
+                      :weight 'bold)
+
+  (set-face-attribute 'nano-face-faded nil
+                      :foreground nano-color-faded
+                      :weight 'bold)
+
+  (set-face-attribute 'nano-face-subtle nil
+                      :background nano-color-subtle)
+
+  (set-face-attribute 'nano-face-header-default nil
+                      :foreground nano-color-foreground
+                      :background nano-color-subtle
+                      :box `(:line-width 1
+                                         :color ,nano-color-background
+                                         :style nil))
+
+  (set-face-attribute 'nano-face-tag-default nil
+                      :foreground nano-color-foreground
+                      :background nano-color-background
+                      :family "Consolas" :weight 'bold
+                      :height (if (display-graphic-p) 120 1)
+                      :box `(:line-width 1
+                                         :color ,nano-color-foreground
+                                         :style nil))
+
+  (set-face-attribute 'nano-face-header-strong nil
+                      :foreground nano-color-strong
+                      :background nano-color-subtle
+                      :inherit 'nano-face-strong
+                      :box `(:line-width 1
+                                         :color ,nano-color-background
+                                         :style nil))
+
+  (set-face-attribute 'nano-face-tag-strong nil
+                      :foreground nano-color-strong
+                      :background nano-color-subtle
+                      :family "Consolas" :weight 'bold
+                      :height (if (display-graphic-p) 120 1)
+                      :box `(:line-width 1
+                                         :color ,nano-color-strong
+                                         :style nil))
+  (set-face-attribute 'nano-face-italic nil
+		      :foreground nano-color-italic
+		      :background nano-color-background
+		      :family "Consolas" :weight 'bold :slant 'italic
+		      :height (if (display-graphic-p) 120 1)
+                      :box `(:line-width 1
+                                         :color ,nano-color-background
+                                         :style nil))
+  (set-face-attribute 'nano-face-header-salient nil
+                      :foreground nano-color-background
+                      :background nano-color-salient
+                      :box `(:line-width 1
+                                         :color ,nano-color-background
+                                         :style nil))
+
+  (set-face-attribute 'nano-face-tag-salient nil
+                      :foreground nano-color-background
+                      :background nano-color-salient
+                      :family "Consolas" :weight 'bold
+                      :height (if (display-graphic-p) 120 1)
+                      :box `(:line-width 1
+                                         :color ,nano-color-salient
+                                         :style nil))
+
+  (set-face-attribute 'nano-face-header-popout nil
+                      :foreground nano-color-background
+                      :background nano-color-popout
+                      :box `(:line-width 1
+                                         :color ,nano-color-background
+                                         :style nil))
+
+  (set-face-attribute 'nano-face-tag-popout nil
+                      :foreground nano-color-background
+                      :background nano-color-popout
+                      :family "Consolas" :weight 'bold
+                      :height (if (display-graphic-p) 120 1)
+                      :box `(:line-width 1
+                                         :color ,nano-color-popout
+                                         :style nil))
+
+  (set-face-attribute 'nano-face-header-faded nil
+                      :foreground nano-color-background
+                      :background nano-color-faded
+                      :box `(:line-width 1
+                                         :color ,nano-color-background
+                                         :style nil))
+
+  (set-face-attribute 'nano-face-tag-faded nil
+                      :foreground nano-color-background
+                      :background nano-color-faded
+                      :family "Consolas" :weight 'bold
+                      :height (if (display-graphic-p) 120 1)
+                      :box `(:line-width 1
+                                         :color ,nano-color-faded
+                                         :style nil))
+
+  (set-face-attribute 'nano-face-header-subtle nil)
+
+  (set-face-attribute 'nano-face-header-critical nil
+                      :foreground nano-color-background
+                      :background nano-color-critical
+                      :box `(:line-width 1
+                                         :color ,nano-color-background
+                                         :style nil))
+  (set-face-attribute 'nano-face-tag-critical nil
+                      :foreground nano-color-background
+                      :background nano-color-critical
+                      :family "Consolas" :weight 'bold
+                      :height (if (display-graphic-p) 120 1)
+                      :box `(:line-width 1
+                                         :color ,nano-color-critical
+                                         :style nil))
+
+  (set-face-attribute 'nano-face-header-separator nil
+                      :inherit 'nano-face-default
+                      :height 0.1)
+  (set-face-attribute 'nano-face-header-filler nil
+                      :inherit 'nano-face-header-default
+                      :height 0.1)
+  (set-face-attribute 'nano-face-header-highlight nil
+                      :inherit 'nano-face-header-faded
+                      :box nil))
+(defun set-face (face style)
+  "Reset FACE and make it inherit STYLE."
+  (set-face-attribute face nil
+                      :foreground 'unspecified :background 'unspecified
+                      :family     'unspecified :slant      'unspecified
+                      :weight     'unspecified :height     'unspecified
+                      :underline  'unspecified :overline   'unspecified
+                      :box        'unspecified :inherit    style))
+(defun nano-theme--basics ()
+  "Derive basic Emacs faces from nano-faces and nano-color-theme."
+  (set-foreground-color nano-color-foreground)
+  (set-background-color nano-color-background)
+  (if (display-graphic-p)
+      (set-face-attribute 'bold nil :weight 'bold)
+    (set-face-attribute 'bold nil :weight 'bold))
+  ;; Structural
+  (set-face 'bold                                     'nano-face-strong)
+  (set-face 'italic                                    'nano-face-faded)
+  (set-face 'bold-italic                              'nano-face-strong)
+  (set-face 'region                                   'nano-face-subtle)
+  (set-face 'highlight                                'nano-face-subtle)
+  (set-face 'fixed-pitch-serif                       'nano-face-default)
+  (set-face 'variable-pitch                          'nano-face-default)
+  (set-face 'cursor                                  'nano-face-default)
+
+  (set-face-attribute 'cursor nil
+                      :background (face-foreground 'nano-face-default))
+  (set-face-attribute 'window-divider nil
+                      :foreground (face-background 'nano-face-default))
+  (set-face-attribute 'window-divider-first-pixel nil
+                      :foreground nano-color-highlight)
+  (set-face-attribute 'window-divider-last-pixel nil
+                      :foreground nano-color-highlight)
+
+  ;; Semantic
+  (set-face 'shadow                                    'nano-face-faded)
+  (set-face 'success                                 'nano-face-salient)
+  (set-face 'warning                                  'nano-face-popout)
+  (set-face 'error                                  'nano-face-critical)
+  (set-face 'match                                    'nano-face-popout)
+
+  ;; General
+  (set-face 'buffer-menu-buffer                       'nano-face-strong)
+  (set-face 'minibuffer-prompt                        'nano-face-strong)
+  (set-face 'link                                    'nano-face-salient)
+  (set-face 'fringe                                    'nano-face-faded)
+  (set-face-attribute 'fringe nil
+                      :foreground (face-background 'nano-face-subtle)
+                      :background (face-background 'default))
+  (set-face 'isearch                                  'nano-face-strong)
+  (set-face 'isearch-fail                              'nano-face-faded)
+  (set-face 'lazy-highlight                           'nano-face-subtle)
+  (set-face 'trailing-whitespace                      'nano-face-subtle)
+  (set-face 'show-paren-match                         'nano-face-popout)
+  (set-face 'show-paren-mismatch                           'face-normal)
+  (set-face-attribute 'tooltip nil                         :height 0.85)
+  (set-face 'secondary-selection                      'nano-face-subtle)
+  (set-face 'completions-common-part                   'nano-face-faded)
+  (set-face 'completions-first-difference            'nano-face-default))
+
+
+(defun nano-theme--font-lock ()
+  "Derive font-lock faces from nano-faces."
+  (set-face 'font-lock-comment-face                    'nano-face-faded)
+  (set-face 'font-lock-doc-face                        'nano-face-faded)
+  (set-face 'font-lock-string-face                    'nano-face-popout)
+  (set-face 'font-lock-constant-face                 'nano-face-salient)
+  (set-face 'font-lock-warning-face                   'nano-face-popout)
+  (set-face 'font-lock-function-name-face             'nano-face-italic)
+  (set-face 'font-lock-variable-name-face             'nano-face-strong)
+  (set-face 'font-lock-builtin-face                  'nano-face-italic)
+  (set-face 'font-lock-type-face                     'nano-face-salient)
+  (set-face 'font-lock-keyword-face                  'nano-face-salient)
+  (set-face 'font-lock-preprocessor-face             'nano-face-popout))
+
+(defun nano-theme--mode-line ()
+  "Derive mode-line and header-line faces from nano-faces."
+  (set-face-attribute 'mode-line nil
+                       :height 0.75
+                       :foreground (face-foreground 'nano-face-faded)
+                       :background (face-background 'nano-face-default)
+                       :overline nil
+                       :underline nil
+                       :box nil)
+  (set-face-attribute 'mode-line-inactive nil
+                       :height 0.75
+                       :foreground (face-foreground 'nano-face-faded)
+                       :background (face-background 'nano-face-default)
+                       :overline nil
+                       :underline nil
+                       :inherit nil
+                       :box nil)
+  ;;(when (display-graphic-p)
+  (set-face-attribute 'header-line nil
+                       :weight 'bold
+                       :foreground (face-foreground 'nano-face-default)
+                       :background (face-background 'nano-face-default)
+
+                       :overline nil
+                       :underline nil
+                       :box nil
+                       :box `(:line-width 1
+                                          :color ,(face-background 'nano-face-default)
+                                          :style nil)
+                       :inherit nil)
+
+  (set-face-attribute 'internal-border nil
+                       :background (face-background 'nano-face-default)))
+
+(defun nano-theme--minibuffer ()
+  "Derive minibuffer / echo area faces from nano faces."
+  ;; Minibuffer / echo area
+  (dolist (buffer (list " *Minibuf-0*" " *Echo Area 0*"
+                        " *Minibuf-1*" " *Echo Area 1*"))
+    (when (get-buffer buffer)
+      (with-current-buffer buffer
+        (face-remap-add-relative 'default 'nano-face-faded)))))
+(defun nano-theme--hl-line ()
+  "Derive hl-line faces from nano faces."
+  (with-eval-after-load 'hl-line
+    (set-face-attribute 'hl-line nil
+                         :background nano-color-highlight)))
+(defun nano-theme--buttons ()
+  "Derive button faces from nano faces."
+  (with-eval-after-load 'cus-edit
+    (set-face-attribute 'custom-button nil
+                         :foreground (face-foreground 'nano-face-faded)
+                         :background (face-background 'nano-face-default)
+                         :box `(:line-width 1
+                                            :color ,(face-foreground 'nano-face-faded)
+                                            :style nil))
+    (set-face-attribute 'custom-button-mouse nil
+                         ;;                      :inherit 'custom-button
+                         :foreground (face-foreground 'nano-face-faded)
+                         :background (face-background 'nano-face-subtle)
+                         :box `(:line-width 1
+                                            :color ,(face-foreground 'nano-face-faded)
+                                            :style nil))
+    (set-face-attribute 'custom-button-pressed nil
+                         :foreground (face-background 'default)
+                         :background (face-foreground 'nano-face-salient)
+                         :inherit 'nano-face-salient
+                         :box `(:line-width 1
+                                            :color ,(face-foreground 'nano-face-salient)
+                                            :style nil)
+                         :inverse-video nil)))
+(defun nano-theme--info ()
+  "Derive info faces from nano faces."
+  (with-eval-after-load 'info
+    (set-face 'info-menu-header                       'nano-face-strong)
+    (set-face 'info-header-node                      'nano-face-default)
+    (set-face 'info-index-match                      'nano-face-salient)
+    (set-face 'Info-quoted                             'nano-face-faded)
+    (set-face 'info-title-1                           'nano-face-strong)
+    (set-face 'info-title-2                           'nano-face-strong)
+    (set-face 'info-title-3                           'nano-face-strong)
+    (set-face 'info-title-4                           'nano-face-strong)))
+(defun nano-theme--speedbar ()
+  "Derive speedbar faces from nano faces."
+  (with-eval-after-load 'speedbar
+    (set-face 'speedbar-button-face                    'nano-face-faded)
+    (set-face 'speedbar-directory-face                'nano-face-strong)
+    (set-face 'speedbar-file-face                    'nano-face-default)
+    (set-face 'speedbar-highlight-face             'nano-face-highlight)
+    (set-face 'speedbar-selected-face                 'nano-face-subtle)
+    (set-face 'speedbar-separator-face                 'nano-face-faded)
+    (set-face 'speedbar-tag-face                       'nano-face-faded)))
+(defun nano-theme--bookmark ()
+  "Derive bookmark faces from nano faces."
+  (with-eval-after-load 'bookmark
+    (set-face 'bookmark-menu-heading                  'nano-face-strong)
+    (set-face 'bookmark-menu-bookmark                'nano-face-salient)))
+(defun nano-theme--customize ()
+  "Derive customize faces from nano faces."
+  (with-eval-after-load 'cus-edit
+    (set-face 'widget-field                           'nano-face-subtle)
+    (set-face 'widget-button                          'nano-face-strong)
+    (set-face 'widget-single-line-field               'nano-face-subtle)
+    (set-face 'custom-group-subtitle                  'nano-face-strong)
+    (set-face 'custom-group-tag                       'nano-face-strong)
+    (set-face 'custom-group-tag-1                     'nano-face-strong)
+    (set-face 'custom-comment                          'nano-face-faded)
+    (set-face 'custom-comment-tag                      'nano-face-faded)
+    (set-face 'custom-changed                        'nano-face-salient)
+    (set-face 'custom-modified                       'nano-face-salient)
+    (set-face 'custom-face-tag                        'nano-face-strong)
+    (set-face 'custom-variable-tag                   'nano-face-default)
+    (set-face 'custom-invalid                         'nano-face-popout)
+    (set-face 'custom-visibility                     'nano-face-salient)
+    (set-face 'custom-state                          'nano-face-salient)
+    (set-face 'custom-link                           'nano-face-salient)))
+(defun nano-theme--package ()
+  "Derive package faces from nano faces."
+  (with-eval-after-load 'package
+    (set-face 'package-description                   'nano-face-default)
+    (set-face 'package-help-section-name             'nano-face-default)
+    (set-face 'package-name                          'nano-face-salient)
+    (set-face 'package-status-avail-obso               'nano-face-faded)
+    (set-face 'package-status-available              'nano-face-default)
+    (set-face 'package-status-built-in               'nano-face-salient)
+    (set-face 'package-status-dependency             'nano-face-salient)
+    (set-face 'package-status-disabled                 'nano-face-faded)
+    (set-face 'package-status-external               'nano-face-default)
+    (set-face 'package-status-held                   'nano-face-default)
+    (set-face 'package-status-incompat                 'nano-face-faded)
+    (set-face 'package-status-installed              'nano-face-salient)
+    (set-face 'package-status-new                    'nano-face-default)
+    (set-face 'package-status-unsigned               'nano-face-default))
+  (defun package-make-button (text &rest properties)
+    (let ((button-text (if (display-graphic-p)
+                           text (concat "[" text "]")))
+          (button-face (if (display-graphic-p)
+                           '(:box `(:line-width 1
+                                                :color ,nano-color-subtle
+                                                :style nil)
+                                  :foreground nano-color-faded
+                                  :background nano-color-subtle)
+                         'link)))
+      (apply #'insert-text-button button-text
+               'face button-face 'follow-link t properties))))
+(defun nano-theme--ido ()
+  "Derive ido faces from nano faces."
+  (with-eval-after-load 'ido
+    (set-face 'ido-first-match                       'nano-face-salient)
+    (set-face 'ido-only-match                          'nano-face-faded)
+    (set-face 'ido-subdir                             'nano-face-strong)))
+(defun nano-theme--diff ()
+  "Derive diff faces from nano faces."
+  (with-eval-after-load 'diff-mode
+    (set-face 'diff-header                             'nano-face-faded)
+    (set-face 'diff-file-header                       'nano-face-strong)
+    (set-face 'diff-context                          'nano-face-default)
+    (set-face 'diff-removed                            'nano-face-faded)
+    (set-face 'diff-changed                           'nano-face-popout)
+    (set-face 'diff-added                            'nano-face-salient)
+    (set-face 'diff-refine-added                    '(nano-face-salient
+                                                      nano-face-strong))
+    (set-face 'diff-refine-changed                    'nano-face-popout)
+    (set-face 'diff-refine-removed                    'nano-face-faded)
+    (set-face-attribute     'diff-refine-removed nil :strike-through t)))
+(defun nano-theme--term ()
+  "Derive term faces from nano faces, and material theme colors."
+  (with-eval-after-load 'term
+    ;; (setq eterm-256color-disable-bold nil)
+    (set-face 'term-bold                                   'nano-face-strong)
+    (set-face-attribute 'term-color-black nil
+                         :foreground (face-foreground 'nano-face-default)
+                         :background (face-foreground 'nano-face-default))
+    (set-face-attribute 'term-color-white nil
+                         :foreground (face-background 'nano-face-default)
+                         :background (face-background 'nano-face-default))
+    (set-face-attribute 'term-color-blue nil
+                         :foreground "#42A5F5"   ;; material color blue L400
+                         :background "#BBDEFB")  ;; material color blue L100
+    (set-face-attribute 'term-color-cyan nil
+                         :foreground "#26C6DA"   ;; material color cyan L400
+                         :background "#B2EBF2")  ;; material color cyan L100
+    (set-face-attribute 'term-color-green nil
+                         :foreground "#66BB6A"   ;; material color green L400
+                         :background "#C8E6C9")  ;; material color green L100
+    (set-face-attribute 'term-color-magenta nil
+                         :foreground "#AB47BC"   ;; material color purple L400
+                         :background "#E1BEE7")  ;; material color purple L100
+    (set-face-attribute 'term-color-red nil
+                         :foreground "#EF5350"   ;; material color red L400
+                         :background "#FFCDD2")  ;; material color red L100
+    (set-face-attribute 'term-color-yellow nil
+                         :foreground "#FFEE58"    ;; material color yellow L400
+                         :background "#FFF9C4"))) ;; material color yellow L100
+(defun nano-theme--ivy ()
+  "Derive ivy faces from nano faces."
+  (with-eval-after-load 'ivy
+    (set-face 'ivy-action                              'nano-face-faded)
+    (set-face 'ivy-completions-annotations             'nano-face-faded)
+    (set-face 'ivy-confirm-face                        'nano-face-faded)
+    (set-face 'ivy-current-match    '(nano-face-strong nano-face-subtle))
+    (set-face 'ivy-cursor                             'nano-face-strong)
+    (set-face 'ivy-grep-info                          'nano-face-strong)
+    (set-face 'ivy-grep-line-number                    'nano-face-faded)
+    (set-face 'ivy-highlight-face                     'nano-face-strong)
+    (set-face 'ivy-match-required-face                 'nano-face-faded)
+    (set-face 'ivy-minibuffer-match-face-1             'nano-face-faded)
+    (set-face 'ivy-minibuffer-match-face-2             'nano-face-faded)
+    (set-face 'ivy-minibuffer-match-face-3             'nano-face-faded)
+    (set-face 'ivy-minibuffer-match-face-4             'nano-face-faded)
+    (set-face 'ivy-minibuffer-match-highlight         'nano-face-strong)
+    (set-face 'ivy-modified-buffer                    'nano-face-popout)
+    (set-face 'ivy-modified-outside-buffer            'nano-face-strong)
+    (set-face 'ivy-org                                 'nano-face-faded)
+    (set-face 'ivy-prompt-match                        'nano-face-faded)
+    (set-face 'ivy-remote                            'nano-face-default)
+    (set-face 'ivy-separator                           'nano-face-faded)
+    (set-face 'ivy-subdir                              'nano-face-faded)
+    (set-face 'ivy-virtual                             'nano-face-faded)
+    (set-face 'ivy-yanked-word                         'nano-face-faded)))
+(defun nano-theme ()
+  "Derive many, many faces from the core nano faces."
+  (nano-theme--basics)
+  (nano-theme--font-lock)
+  (nano-theme--mode-line)
+  (nano-theme--minibuffer)
+  (nano-theme--buttons)
+  (nano-theme--info)
+  (nano-theme--bookmark)
+  (nano-theme--speedbar)
+  (nano-theme--customize)
+  (nano-theme--package)
+  (nano-theme--ido)
+  (nano-theme--diff)
+  (nano-theme--term)
+  (nano-theme--ivy)
+  (nano-theme--hl-line))
+
+;; Colors from Material design at https://material.io/
+(setq frame-background-mode    'light)
+(setq nano-color-foreground "#37474F") ;; Blue Grey
+(setq nano-color-background "#F1F1F1") ;; Light Gray
+(setq nano-color-highlight  "#FFFFFF") ;; White
+(setq nano-color-critical   "#FF3333") ;; Red
+(setq nano-color-salient    "#673AB7") ;; Deep Purple
+(setq nano-color-italic     "#7B1113") ;; Maroon
+(setq nano-color-strong     "#000000") ;; Black
+(setq nano-color-popout     "#FF6F00") ;; Deep Orange
+(setq nano-color-subtle     "#D7D7D7") ;; Grey
+(setq nano-color-faded      "#979797") ;; Dark Grey
+
+;;; still working out how this would work
+(defun toggle-theme ()
+  "Switch between light and dark mode."
+  (interactive)
+  (setq frame-background-mode 'dark)
+  (setq local-temp nano-color-strong)
+  (setq nano-color-strong nano-color-background)
+  (setq nano-color-background local-temp)
+  (eval-buffer))
+
+(nano-faces)
+(nano-theme)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; profiling & normal gc settings
+(setq gc-cons-threshold 80000)
+(setq gc-cons-percentage .1)
+(add-hook 'emacs-startup-hook
+          (lambda ()
+            (message "Emacs ready in %s with %d garbage collections."
+                     (format "%.2f seconds"
+                             (float-time
+                              (time-subtract after-init-time before-init-time)))
+                     gcs-done)))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
