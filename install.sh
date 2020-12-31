@@ -1,15 +1,13 @@
-sudo add-apt-repository ppa:kelleyk/emacs
-sudo apt update
-sudo apt install emacs27
-git config credential.helper store
-read -p "git email : " var_email
-read -p "git username : " var_username
-git config --global user.email var_email
-git config --global user.name var_username
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
-read -p "Will you use C? y or n: " is_c
+mkdir ~/.local/bin
 
-if [[ "$is_c" == "y" ]]; then
-    sudo apt install build-essential
-    sudo apt install clangd    
-fi
+curl -L https://github.com/rust-analyzer/rust-analyzer/releases/latest/download/rust-analyzer-linux -o ~/.local/bin/rust-analyzer
+
+chmod +x ~/.local/bin/rust-analyzer
+
+sudo apt install openocd
+
+rustup default nightly
+rustup target add riscv32-unknown-none-elf
+cargo install cargo-binutils
