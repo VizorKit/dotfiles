@@ -9,8 +9,9 @@ chmod +x ~/.local/bin/rust-analyzer
 sudo apt install openocd
 export PATH=/home/vizorkit/.local/bin:$PATH 
 
+exec bash
 rustup default nightly
-rustup target add riscv32-unknown-none-elf
+rustup target add riscv32imac-unknown-none-elf
 cargo install cargo-binutils
 
 sudo apt install git
