@@ -7,7 +7,8 @@ curl -L https://github.com/rust-analyzer/rust-analyzer/releases/latest/download/
 chmod +x ~/.local/bin/rust-analyzer
 
 sudo apt install openocd
-
+exec bash
 rustup default nightly
-rustup target add riscv32-unknown-none-elf
+rustup target add riscv32imac-unknown-none-elf
 cargo install cargo-binutils
+export PATH=/home/christopher/.local/bin:$PATH
