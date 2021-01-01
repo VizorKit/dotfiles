@@ -7,9 +7,8 @@ curl -L https://github.com/rust-analyzer/rust-analyzer/releases/latest/download/
 chmod +x ~/.local/bin/rust-analyzer
 
 sudo apt install openocd
-export PATH=/home/vizorkit/.local/bin:$PATH 
+export PATH=/home/christopher/.local/bin:$PATH 
 
-exec bash
 rustup default nightly
 rustup target add riscv32imac-unknown-none-elf
 cargo install cargo-binutils
@@ -31,4 +30,4 @@ git checkout v5.0.0
 ./configure --target-list=riscv32-softmmu
 make -j $(nproc)
 sudo make install
-export PATH=/home/vizorkit/qemu/
+export PATH=/home/christopher/qemu:$PATH
