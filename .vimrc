@@ -9,58 +9,35 @@ syntax enable
 " disable bells
 set noeb vb t_vb=
 
-color slate
+" plug setup if not on machine
+if empty(glob('~/.vim/autoload/plug.vim'))
+  silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
+    \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+endif
 
-" begin maps
-map <C-b> :NERDTreeToggle<CR>
+" plug Install automatically
+autocmd VimEnter * if len(filter(values(g:plugs), '!isdirectory(v:val.dir)'))
+  \| PlugInstall --sync | source $MYVIMRC
+\| endif
 
 
-" begin plugins
 call plug#begin('~/.vim/plugged')
 
-Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
-Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
-Plug 'OmniSharp/omnisharp-vim', { 'for': 'cs' }
 Plug 'vim-airline/vim-airline'
-Plug 'inside/vim-search-pulse'
-Plug 'natebosch/vim-lsc', { 'for': 'java' }
-Plug 'tpope/vim-gitgutter'
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'junegunn/fzf.vim'
 
 call plug#end()
 
-" lsc configuration
-if has("unix")
-    let g:lsc_server_commands = { 'java': '~/jls/java-language-server/dist/lang_server_linux.sh' }
 
-elseif has("win32")
-    let g:lsc_server_commands = { 'java': '$HOME\java-language-server\dist\lang_server_windows.sh' }
-		let g:gitgutter_git_executable = 'C:\Program Files\Git\bin\git.exe'
-endif
 
-" nerdtree configuration
-let NERDTreeShowHidden=1
+autocmd FileType cs,java,ts,js,rs inoremap { {}<Left><Enter><Enter><Up><Tab>
+autocmd FileType cs,java,ts,js,rs inoremap ( ()<Left>
+autocmd FileType cs,java,ts,js,rs inoremap ' ''<Left>
+autocmd FileType cs,java,ts,js,rs inoremap " ""<Left>
 
-" coding configuration
-autocmd FileType cs,java,ts,js inoremap { {}<Left><Enter><Enter><Up><Tab>
-autocmd FileType cs,java,ts,js inoremap ( ()<Left>
-autocmd FileType cs,java,ts,js inoremap ' ''<Left>
-autocmd FileType cs,java,ts,js inoremap " ""<Left>
-
-" dotnet configuration
 autocmd FileType cs inoremap <expr> <Tab> pumvisible() ? '<C-n>' : getline('.')[col('.')-2] =~# '[[:alnum:].-_#$]' ? '<C-x><C-o>' : SkipClosingParentheses()
-nnoremap <C-o><C-u> :OmniSharpFindUsages<CR>
-nnoremap <C-o><C-d> :OmniSharpGotoDefinition<CR>
-nnoremap <C-o><C-p> :OmniSharpPreviewDefinition<CR>
-nnoremap <C-o><C-c> :!dotnet clean
-nnoremap <C-o><C-r> :!dotnet run
-nnoremap <C-o><C-t> :!dotnet test
-
-" java configuration
-nnoremap <C-m><C-c> :!mvnw clean verify compile
-nnoremap <C-m><C-i> :!mvnw install
-" mvn -Dtest=class#method test
-
-" angular configuration
 
 " function declarations
 " Skip closing parenthesis, need to add to all languages

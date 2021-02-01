@@ -1054,17 +1054,3 @@ Assumes that the frame is only split into two."
                               (time-subtract after-init-time before-init-time)))
                      gcs-done)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   (quote
-    (flycheck-rust rust-mode tab-jump-out flycheck lsp-ivy lsp-mode color-identifiers-mode projectile counsel ivy which-key company use-package))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
