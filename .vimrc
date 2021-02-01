@@ -21,11 +21,23 @@ autocmd VimEnter * if len(filter(values(g:plugs), '!isdirectory(v:val.dir)'))
   \| PlugInstall --sync | source $MYVIMRC
 \| endif
 
+
+" ALE configuration
+let g:ale_sign_column_always = 1
+let g:ale_fix_on_save = 1
+let g:ale_fixers = {
+												\ 'rust':['rustfmt'],
+												\}
+let g:ale_linters = {
+												\ 'rust':['analyzer'],
+												\}
+
 call plug#begin('~/.vim/plugged')
 
 Plug 'vim-airline/vim-airline'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
+Plug 'dense-analysis/ale'
 
 call plug#end()
 
@@ -54,3 +66,12 @@ endfunction
 vmap <C-c> "+y<Esc>
 nnoremap <C-p> :GFiles<CR>
 nnoremap <C-b> :Buffers<CR>
+nnoremap <C-l> :ALEGoToDefinition<CR>
+
+" ALE configuration
+let g:ale_sign_column_always = 1
+let g:ale_fix_on_save = 1
+let g:ale_fixers = {
+												\ 'rust':['rustfmt'],
+												\}
+
