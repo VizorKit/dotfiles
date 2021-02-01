@@ -52,3 +52,5 @@ endfunction
 
 " mappings.
 vmap <C-c> "+y<Esc>
+nnoremap <C-p> :GFiles<CR>
+nnoremap <C-b> :Buffers<CR>
