@@ -1,0 +1,31 @@
+"WINDOW MANAGEMENT"
+ni <C-w>s 		Splits window horizontally
+ni <C-w>v 		Splits window Vertically
+ni <C-w>q 		Quits Current Window
+ni <C-w>z 		Quits Preview Window
+ni <C-w>h 		Moves to Left Window
+ni <C-w>j 		Moves to Bottom Window
+
+"TEXT MOVEMENT"
+ni <C-o> 			previous position (works across windows)
+n zz 					Centers current line to window
+n zt 					Puts current line at top of window
+n a						Insert appends after cursor
+n A						Insert at end of line
+n i 					Insert appends before cursor
+n I						Insert at start of line
+n 0						Stays in normal, moves to start of line
+n $						Stays in normal, moves to end of line
+ni <C-t>			Tabs current line
+ni <C-d>			DeTabs current line
+n gg					Go to beginning of document
+n G						Go to last line of document
+n e						Jump forward to end of word
+n b						Jump backward to start of word
+n E						Jump forward to end of word skips punctuation
+n B						Jump backward to start of word skips punctuation
+
+
+"TAB MANAGEMENT"
+
+
