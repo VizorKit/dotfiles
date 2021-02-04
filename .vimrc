@@ -1,4 +1,5 @@
 set nocompatible
+set ignorecase
 set ruler
 set number
 set tabstop=2
@@ -23,13 +24,14 @@ autocmd VimEnter * if len(filter(values(g:plugs), '!isdirectory(v:val.dir)'))
   \| PlugInstall --sync | source $MYVIMRC
 \| endif
 
-
 " ALE configuration
 let g:ale_fix_on_save = 1
 let g:ale_fixers = {
 												\ 'rust':['rustfmt'],
 												\}
 let g:ale_linters = {
+												\ 'typescript':['tslint'],
+												\ 'javascript':['eslint'],
 												\ 'rust':['analyzer'],
 												\}
 
@@ -40,36 +42,35 @@ Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 Plug 'dense-analysis/ale'
 
-
 call plug#end()
 
-autocmd FileType cs,java,ts,js,rs inoremap { {}<Left><Enter><Enter><Up><Tab>
-autocmd FileType cs,java,ts,js,rs inoremap ( ()<Left>
-autocmd FileType cs,java,ts,js,rs inoremap ' ''<Left>
-autocmd FileType cs,java,ts,js,rs inoremap " ""<Left>
+inoremap { {}<Left><Enter><Enter><Up><Tab>
+inoremap ( ()<Left>
+inoremap ' ''<Left>
+inoremap " ""<Left>
+inoremap [ []<Left>
+inoremap <expr> <Tab> pumvisible() ? '<C-n>' : SkipClosingPair()
 
-autocmd FileType cs,java,ts,js,rs inoremap <expr> <Tab> pumvisible() ? '<C-n>' : getline('.')[col('.')-2] =~# '[[:alnum:].-_#$]' ? '<C-x><C-o>' : SkipClosingParentheses()
+nnoremap <leader>cb :vert :term cargo build<CR><C-W><C-w>
+nnoremap <leader>cr :vert :term cargo run<CR><C-w><C-w>
 
-nnoremap <leader>b :vert :term cargo build<CR><C-W><C-w>
-
-" function declarations
-" Skip closing parenthesis, need to add to all languages
-function! SkipClosingParentheses()
+" functions
+function! SkipClosingPair()
   let line = getline('.')
   let current_char = line[col('.')-1]
-
+	"there is more"
   "Ignore EOL
   if col('.') == col('$')
     return "\<Tab>"
   end
-
-  return stridx("]})\'\"", current_char)==-1 ? "\<Tab>" : "\<Right>"
+  return stridx("}])\'\"", current_char)==-1 ? "\<Tab>" : "\<Right>"
 endfunction
 
 " mappings.
 vmap <C-c> "+y<Esc>
 nnoremap <C-p> :GFiles<CR>
 nnoremap <C-b> :Buffers<CR>
+imap <C-x><C-t> <C-x><C-]>
 
 nmap <C-l>g :ALEGoToDefinition<CR>
 nmap <C-l>. :ALECodeAction<CR>
