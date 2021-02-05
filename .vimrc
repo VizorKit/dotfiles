@@ -6,6 +6,21 @@ set tabstop=2
 set laststatus=2
 set backspace=indent,eol,start
 set clipboard=unnamedplus
+set shortmess+=c
+set complete+=kspell
+set completeopt=menuone,longest
+set hlsearch
+set incsearch
+set mouse=a
+set showmatch
+set spelllang=en_us
+set splitbelow
+set splitright
+set ttyfast
+set wildmenu
+set wildmode=full
+
+
 
 syntax enable
 " disable bells
@@ -27,6 +42,8 @@ autocmd VimEnter * if len(filter(values(g:plugs), '!isdirectory(v:val.dir)'))
 " ALE configuration
 let g:ale_fix_on_save = 1
 let g:ale_fixers = {
+												\ 'javascript':['eslint'],
+												\ 'typescript':['tslint'],
 												\ 'rust':['rustfmt'],
 												\}
 let g:ale_linters = {
@@ -38,6 +55,7 @@ let g:ale_linters = {
 call plug#begin('~/.vim/plugged')
 
 Plug 'vim-airline/vim-airline'
+Plug 'vim-scripts/AutoComplPop'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 Plug 'dense-analysis/ale'
@@ -49,7 +67,7 @@ inoremap ( ()<Left>
 inoremap ' ''<Left>
 inoremap " ""<Left>
 inoremap [ []<Left>
-inoremap <expr> <Tab> pumvisible() ? '<C-n>' : SkipClosingPair()
+inoremap <expr> <Tab> pumvisible() ? '<C-y>' : SkipClosingPair()
 
 nnoremap <leader>cb :vert :term cargo build<CR><C-W><C-w>
 nnoremap <leader>cr :vert :term cargo run<CR><C-w><C-w>
