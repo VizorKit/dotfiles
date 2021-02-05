@@ -11,16 +11,12 @@ set complete+=kspell
 set completeopt=menuone,longest
 set hlsearch
 set incsearch
-set mouse=a
 set showmatch
-set spelllang=en_us
 set splitbelow
 set splitright
 set ttyfast
 set wildmenu
 set wildmode=full
-
-
 
 syntax enable
 " disable bells
@@ -39,7 +35,7 @@ autocmd VimEnter * if len(filter(values(g:plugs), '!isdirectory(v:val.dir)'))
   \| PlugInstall --sync | source $MYVIMRC
 \| endif
 
-" ALE configuration
+let g:ctags_install = "./autogen.sh && ./configure && make && make install"
 let g:ale_fix_on_save = 1
 let g:ale_fixers = {
 												\ 'javascript':['eslint'],
@@ -58,7 +54,9 @@ Plug 'vim-airline/vim-airline'
 Plug 'vim-scripts/AutoComplPop'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
+Plug 'universal-ctags/ctags', {	'do': g:ctags_install }
 Plug 'dense-analysis/ale'
+Plug 'ludovicchabant/vim-gutentags'
 
 call plug#end()
 
@@ -67,7 +65,7 @@ inoremap ( ()<Left>
 inoremap ' ''<Left>
 inoremap " ""<Left>
 inoremap [ []<Left>
-inoremap <expr> <Tab> pumvisible() ? '<C-y>' : SkipClosingPair()
+inoremap <expr> <Tab> pumvisible() ? '' : SkipClosingPair()
 
 nnoremap <leader>cb :vert :term cargo build<CR><C-W><C-w>
 nnoremap <leader>cr :vert :term cargo run<CR><C-w><C-w>
@@ -88,7 +86,6 @@ endfunction
 vmap <C-c> "+y<Esc>
 nnoremap <C-p> :GFiles<CR>
 nnoremap <C-b> :Buffers<CR>
-imap <C-x><C-t> <C-x><C-]>
 
 nmap <C-l>g :ALEGoToDefinition<CR>
 nmap <C-l>. :ALECodeAction<CR>
