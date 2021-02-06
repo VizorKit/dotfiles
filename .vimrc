@@ -1,4 +1,5 @@
 set nocompatible
+set complete=.,w,b,u,t,i,]
 set ignorecase
 set ruler
 set number
@@ -33,7 +34,13 @@ endif
 autocmd VimEnter * if len(filter(values(g:plugs), '!isdirectory(v:val.dir)'))
   \| PlugInstall --sync | source $MYVIMRC
 \| endif
-let g:apc_enable_ft = '*'
+
+set omnifunc=ale#completion#OmniFunc
+let g:ale_sign_column_always = 1
+let g:ale_sign_error = '✗'
+let g:ale_sign_warning = '⚠️'
+let g:ale_completion_enabled = 1
+let g:ale_completion_autoimport = 1
 let g:ale_fix_on_save = 1
 let g:ale_fixers = {
 												\ 'javascript':['eslint'],
@@ -49,13 +56,14 @@ let g:ale_linters = {
 call plug#begin('~/.vim/plugged')
 
 Plug 'vim-airline/vim-airline'
+Plug 'vim-scripts/AutoComplPop'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 Plug 'dense-analysis/ale'
 
 call plug#end()
 
-inoremap { {}<Left><Enter><Enter><Up><Tab>
+inoremap { {}<Left>
 inoremap ( ()<Left>
 inoremap ' ''<Left>
 inoremap " ""<Left>
@@ -95,9 +103,11 @@ nnoremap <C-p> :GFiles<CR>
 nnoremap <C-b> :Buffers<CR>
 
 
-nmap <C-l>g :ALEGoToDefinition<CR>
-nmap <C-l>. :ALECodeAction<CR>
-nmap <C-l>s :ALESymbolSearch<CR>
-nmap <C-l>r :ALERename<CR>
-nmap <C-l>h :ALEHover<CR>
-nmap <C-l>f :ALEFindReferences<CR>
+nmap <silent> <C-l>g :ALEGoToDefinition<CR>
+nmap <silent> <C-l>. :ALECodeAction<CR>
+nmap <silent> <C-l>s :ALESymbolSearch<CR>
+nmap <silent> <C-l>r :ALERename<CR>
+nmap <silent> <C-l>h :ALEHover<CR>
+nmap <silent> <C-l>/ :ALEFindReferences<CR>
+nmap <silent> <C-l>a <Plug>(ale_previous_wrap)
+nmap <silent> <C-l>d <Plug>(ale_next_wrap)
