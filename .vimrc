@@ -7,7 +7,7 @@ set laststatus=2
 set backspace=indent,eol,start
 set clipboard=unnamedplus
 set shortmess+=c
-set complete+=kspell
+set complete+=kspell,t
 set completeopt=menuone,longest
 set hlsearch
 set incsearch
@@ -35,7 +35,6 @@ autocmd VimEnter * if len(filter(values(g:plugs), '!isdirectory(v:val.dir)'))
   \| PlugInstall --sync | source $MYVIMRC
 \| endif
 
-let g:ctags_install = "./autogen.sh && ./configure && make && make install"
 let g:ale_fix_on_save = 1
 let g:ale_fixers = {
 												\ 'javascript':['eslint'],
@@ -54,9 +53,7 @@ Plug 'vim-airline/vim-airline'
 Plug 'vim-scripts/AutoComplPop'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
-Plug 'universal-ctags/ctags', {	'do': g:ctags_install }
 Plug 'dense-analysis/ale'
-Plug 'ludovicchabant/vim-gutentags'
 
 call plug#end()
 
@@ -65,7 +62,7 @@ inoremap ( ()<Left>
 inoremap ' ''<Left>
 inoremap " ""<Left>
 inoremap [ []<Left>
-inoremap <expr> <Tab> pumvisible() ? '' : SkipClosingPair()
+inoremap <expr> <Tab> pumvisible() ? '<C-n>' : SkipClosingPair()
 
 nnoremap <leader>cb :vert :term cargo build<CR><C-W><C-w>
 nnoremap <leader>cr :vert :term cargo run<CR><C-w><C-w>
@@ -86,6 +83,7 @@ endfunction
 vmap <C-c> "+y<Esc>
 nnoremap <C-p> :GFiles<CR>
 nnoremap <C-b> :Buffers<CR>
+
 
 nmap <C-l>g :ALEGoToDefinition<CR>
 nmap <C-l>. :ALECodeAction<CR>
