@@ -9,6 +9,7 @@ set backspace=indent,eol,start
 set clipboard=unnamedplus
 set shortmess+=c
 set completeopt=menuone,longest
+set timeoutlen=3000
 set hlsearch
 set incsearch
 set showmatch
@@ -42,6 +43,7 @@ let g:ale_completion_enabled = 1
 let g:ale_completion_autoimport = 1
 let g:ale_fix_on_save = 1
 let g:ale_fixers = {
+												\ '*': ['remove_trailing_lines', 'trime_whitespace'],
 												\ 'javascript':['eslint'],
 												\ 'typescript':['tslint'],
 												\ 'rust':['rustfmt'],
@@ -73,7 +75,7 @@ inoremap <expr> <C-n> pumvisible() ? '<C-n>' :
 
 inoremap <expr> <Tab> pumvisible() ? '<C-n>' : SkipClosingPair()
 
-
+" language build/run/test commands"
 nnoremap <leader>cb :vert :term cargo build<CR><C-W><C-w>
 nnoremap <leader>cr :vert :term cargo run<CR><C-w><C-w>
 
@@ -91,10 +93,13 @@ endfunction
 
 " mappings.
 vmap <C-c> "+y<Esc>
-nnoremap <C-p> :GFiles<CR>
-nnoremap <C-b> :Buffers<CR>
 
+" leader commands"
+nnoremap <leader>p :GFiles<CR>
+nnoremap <leader>b :Buffers<CR>
+nnoremap <leader>h :History<CR> 
 
+" language commands"
 nmap <silent> <C-l>g :ALEGoToDefinition<CR>
 nmap <silent> <C-l>. :ALECodeAction<CR>
 nmap <silent> <C-l>s :ALESymbolSearch<CR>
